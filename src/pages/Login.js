@@ -52,7 +52,7 @@ const Login = () => {
         try {
             const idToken = response.credential;
 
-            const result = await fetch('https://fya-api.com:8443/api/login/google', {
+            const result = await fetch('https://backend-production-5e0d.up.railway.app/auth/google/', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
