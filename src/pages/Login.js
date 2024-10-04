@@ -34,14 +34,17 @@ const Login = () => {
             const data = await response.json();
             console.log('Datos recibidos del servidor:', data);
 
+            console.log('Datos recibidos del servidor:', data);
             if (response.ok) {
+                console.log('Login fue exitoso, ahora navegaremos al dashboard...');
                 const { token, user, permissions, roles } = data.data;
-                setPermissions(permissions); // Establece los permisos
-                login(roles, token, user.name); // Pasa los roles al contexto de autenticación
-                navigate('/dashboard'); // Redirigir al usuario al dashboard
+                setPermissions(permissions);
+                login(roles, token, user.name);
+                navigate('/dashboard');
             } else {
-                throw new Error(data.message || 'Error al iniciar sesión');
+                console.error('Login falló con mensaje:', data.message);
             }
+            
         } catch (error) {
             console.error('Error al iniciar sesión:', error.message);
             alert('Error al iniciar sesión, verifica tus credenciales');
