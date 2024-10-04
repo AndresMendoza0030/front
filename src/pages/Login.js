@@ -23,7 +23,7 @@ const Login = () => {
     const handleLogin = async (e) => {
         e.preventDefault();
         try {
-            const response = await fetch('http://fya-api.com:80/api/login', {
+            const response = await fetch('https://backend-production-5e0d.up.railway.app/api/login', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

@@ -54,7 +54,7 @@ const UserModal = ({ user, permissions = [], roles = [], closeModal }) => {
 
             // Asignar permisos
             for (const permissionId of permissionsToAssign) {
-                await fetch('http://fya-api.com:80/api/assign-permission', {
+                await fetch('https://backend-production-5e0d.up.railway.app/api/assign-permission', {
                     method: 'POST',
                     headers: {
                         'Authorization': `Bearer ${token}`,
@@ -69,7 +69,7 @@ const UserModal = ({ user, permissions = [], roles = [], closeModal }) => {
 
             // Revocar permisos
             for (const permissionId of permissionsToRevoke) {
-                await fetch('http://fya-api.com:80/api/revoke-permission', {
+                await fetch('https://backend-production-5e0d.up.railway.app/api/revoke-permission', {
                     method: 'POST',
                     headers: {
                         'Authorization': `Bearer ${token}`,
@@ -84,7 +84,7 @@ const UserModal = ({ user, permissions = [], roles = [], closeModal }) => {
 
             // Asignar roles
             for (const roleId of rolesToAssign) {
-                await fetch('http://fya-api.com:80/api/assign-role-to-user', {
+                await fetch('https://backend-production-5e0d.up.railway.app/api/assign-role-to-user', {
                     method: 'POST',
                     headers: {
                         'Authorization': `Bearer ${token}`,
@@ -99,7 +99,7 @@ const UserModal = ({ user, permissions = [], roles = [], closeModal }) => {
 
             // Revocar roles
             for (const roleId of rolesToRevoke) {
-                await fetch('http://fya-api.com:80/api/revoke-role-to-user', {
+                await fetch('https://backend-production-5e0d.up.railway.app/api/revoke-role-to-user', {
                     method: 'POST',
                     headers: {
                         'Authorization': `Bearer ${token}`,

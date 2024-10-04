@@ -18,7 +18,7 @@ const UserPermissions = ({ users, fetchUsers }) => {
     useEffect(() => {
         const fetchPermissions = async () => {
             try {
-                const response = await fetch('http://fya-api.com:80/api/permissions', {
+                const response = await fetch('https://backend-production-5e0d.up.railway.app/api/permissions', {
                     method: 'GET',
                     headers: {
                         'Authorization': `Bearer ${token}`,
@@ -42,7 +42,7 @@ const UserPermissions = ({ users, fetchUsers }) => {
 
         const fetchRoles = async () => {
             try {
-                const response = await fetch('http://fya-api.com:80/api/roles', {
+                const response = await fetch('https://backend-production-5e0d.up.railway.app/api/roles', {
                     method: 'GET',
                     headers: {
                         'Authorization': `Bearer ${token}`,

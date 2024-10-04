@@ -22,7 +22,7 @@ const PasswordRecovery = () => {
         console.log('handlePasswordRecovery function called');
 
         try {
-            const requestUrl = 'http://fya-api.com:80/api/password-recovery';
+            const requestUrl = 'https://backend-production-5e0d.up.railway.app/api/password-recovery';
             const requestOptions = {
                 method: 'POST',
                 headers: {

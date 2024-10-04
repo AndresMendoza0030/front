@@ -15,7 +15,7 @@ const UserConfig = () => {
 
     const fetchUsers = async () => {
         try {
-            const response = await fetch('http://fya-api.com:80/api/users', {
+            const response = await fetch('https://backend-production-5e0d.up.railway.app/api/users', {
                 method: 'GET',
                 headers: {
                     'Authorization': `Bearer ${token}`,
