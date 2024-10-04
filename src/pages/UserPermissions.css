@@ -1,0 +1,155 @@
+/* src/pages/UserPermissions.css */
+
+body, html {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+}
+
+.config-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+    background-color: #f4f4f4;
+    width: 100%;
+}
+.pagination {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.pagination-button {
+    margin: 0 5px;
+    padding: 5px 10px;
+    border-radius: 8px;
+    background-color: #D10A11;
+    cursor: pointer;
+}
+
+.pagination-button.active {
+    background-color: #D10A11;;
+    color: white;
+    border-color: #D10A11;;
+}
+
+.config-header {
+    width: 100%;
+    max-width: 800px;
+    padding: 20px 10px;
+    background-color: #1B878F;
+    color: #FFFFFF;
+    border-radius: 10px;
+    text-align: center;
+    font-family: 'Raleway', sans-serif;
+}
+
+.config-form {
+    width: 100%;
+    max-width: 800px;
+    margin-top: 20px;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    padding: 20px;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-label {
+    font-family: 'Raleway', sans-serif;
+    font-weight: bold;
+    color: #333;
+}
+
+.form-control {
+    width: 97%;
+    padding: 10px;
+    margin-top: 5px;
+    font-family: 'Raleway', sans-serif;
+}
+
+.submit-button {
+    margin-top: 20px;
+    padding: 10px 20px;
+    background-color: #D10A11;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+.submit-button:hover {
+    background-color: #a00;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+    text-align: center;
+    color: #000000;
+}
+
+table, th, td {
+    border: 1px solid #ddd;
+    padding: 8px;
+}
+
+th {
+    background-color: #1B878F;
+    color: white;
+}
+
+.edit-button {
+    background-color: #1B878F;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    padding: 5px 10px;
+}
+
+.edit-button:hover {
+    background-color: #125f67;
+}
+
+.modal {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: fixed;
+    z-index: 1;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.4);
+}
+
+.modal-content {
+    background-color: #fefefe;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%;
+    max-width: 500px;
+    border-radius: 10px;
+}
+
+.close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+}

@@ -1,0 +1,197 @@
+/* src/pages/Login.css */
+body.login-page {
+    font-family: 'Raleway', sans-serif;
+    background: url('/public/images/background.jpg') no-repeat center center fixed;
+    background-size: cover;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    width: 100%;
+    margin: 0;
+}
+/* Estilos para el botón que parece un enlace */
+/* Estilos para el botón de regresar */
+.back-to-login {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background: none;
+    border: none;
+    color: #D10A11;
+    font-size: 24px; /* Puedes ajustar el tamaño según prefieras */
+    cursor: pointer;
+    padding: 0;
+}
+
+.back-to-login:hover {
+    text-decoration: none;
+}
+
+/* Estilos para el botón de regresar en la esquina superior izquierda */
+.back-button {
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    background-color: #D10A11;
+    color: #FFFFFF;
+    font-weight: bold;
+    border: none;
+    border-radius: 5px;
+    padding: 10px;
+    width: auto;
+    cursor: pointer;
+}
+
+.back-button:hover {
+    background-color: #a00;
+}
+
+/* Asegúrate de que el contenedor tiene posición relativa */
+.login-container {
+    position: relative; /* Necesario para que .back-button se posicione respecto al contenedor */
+    background-color: rgba(255, 255, 255, 0.9);
+    padding: 20px;
+    padding-top: 40px; /* Añadir padding-top para evitar que el contenido se superponga con el botón */
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    text-align: center;
+    z-index: 10;
+}
+
+/* Estilos comunes para botones dentro de .login-container */
+.login-container button {
+    margin: 10px 0;
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+    background-color: #D10A11;
+    color: #FFFFFF;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+/* Estilo específico para el botón de enviar */
+.login-container .submit-button {
+    width: 100%;
+    max-width: 300px;
+}
+
+/* Efecto hover para los botones */
+.login-container button:hover {
+    background-color: #a00;
+}
+
+/* Ajuste del margen superior para evitar solapamiento */
+.login-container img,
+.login-container h1,
+.login-container p,
+.login-container form,
+.login-container .success-message,
+.login-container .error-message {
+    margin-top: 20px;
+}
+
+/* Opcional: si deseas ajustar el tamaño de la flecha en el botón de volver */
+.back-button {
+    font-size: 18px; /* Ajusta el tamaño según tus preferencias */
+    padding: 8px 12px; /* Ajusta el padding para que el botón sea más angosto */
+}
+
+
+.success-message {
+    color: green;
+}
+
+.error-message {
+    color: red;
+}
+/* Login.css o PasswordRecovery.css */
+
+.password-recovery-container {
+    max-width: 400px;
+    margin: auto;
+    padding: 20px;
+    text-align: center;
+}
+
+.success-message {
+    color: green;
+    margin-top: 10px;
+}
+
+.error-message {
+    color: red;
+    margin-top: 10px;
+}
+
+.login-container img {
+    height: 88px;
+    width: auto;
+    margin-bottom: 10px;
+}
+
+.login-container {
+    background-color: rgba(255, 255, 255, 0.9);
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    text-align: center;
+    z-index: 10;
+}
+
+.login-container h1 {
+    margin-bottom: 20px;
+    color: #000000;
+}
+
+.login-container form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 20px; /* Añadido para espacio extra */
+}
+
+.login-container input {
+    margin: 10px 0;
+    padding: 10px;
+    width: 100%;
+    max-width: 300px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+.login-container button {
+    margin: 10px 0;
+    padding: 10px;
+    
+    border: none;
+    border-radius: 5px;
+    background-color: #D10A11;
+    color: #FFFFFF;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.login-container button:hover {
+    background-color: #a00;
+}
+
+.login-container .g_id_signin {
+    margin: 10px 0;
+    width: 100%;
+    max-width: 300px;
+    border-radius: 5px;
+   
+    display: flex;
+    justify-content: center;
+}
+
+.login-container a {
+    color: #D10A11;
+    text-decoration: none;
+}
+
+.login-container a:hover {
+    text-decoration: underline;
+}
