@@ -1,16 +1,17 @@
+// src/pages/Login.js
 import React, { useState, useEffect } from 'react';
-import { GoogleOAuthProvider, googleLogout, useGoogleLogin } from '@react-oauth/google'; // Importamos GoogleOAuthProvider y useGoogleLogin
+import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google';
 import { useAuth } from '../context/AuthContext';
 import { usePermissions } from '../context/PermissionsContext';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom'; // Importa useNavigate
 import './Login.css';
 
 const Login = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const { login } = useAuth();
+    const { login } = useAuth(); // Hook para manejar el inicio de sesión
     const { setPermissions } = usePermissions();
-    const navigate = useNavigate();
+    const navigate = useNavigate(); // Hook para navegación
 
     useEffect(() => {
         document.body.classList.add('login-page');
@@ -31,23 +32,28 @@ const Login = () => {
             });
 
             const data = await response.json();
+            console.log('Datos recibidos del servidor:', data);
+
+            console.log('Datos recibidos del servidor:', data);
             if (response.ok) {
+                console.log('Login fue exitoso, ahora navegaremos al dashboard...');
                 const { token, user, permissions, roles } = data.data;
                 setPermissions(permissions);
                 login(roles, token, user.name);
                 navigate('/dashboard');
             } else {
-                console.error('Login falló:', data.message);
+                console.error('Login falló con mensaje:', data.message);
             }
+            
         } catch (error) {
             console.error('Error al iniciar sesión:', error.message);
             alert('Error al iniciar sesión, verifica tus credenciales');
         }
     };
 
-    const handleGoogleSuccess = async (tokenResponse) => {
+    const handleGoogleSuccess = async (response) => {
         try {
-            const idToken = tokenResponse.credential;
+            const idToken = response.credential;
 
             const result = await fetch('https://backend-production-5e0d.up.railway.app/auth/google/', {
                 method: 'POST',
@@ -64,7 +70,7 @@ const Login = () => {
             if (result.ok && data.data.token) {
                 const { token, user, permissions, roles } = data.data;
                 setPermissions(permissions);
-                login(roles, token, user.name);
+                login(roles, token, user.name); // Pasa los roles al contexto de autenticación
                 navigate('/dashboard');
             } else {
                 throw new Error('Error al autenticar con la API');
@@ -76,16 +82,17 @@ const Login = () => {
     };
 
     const handleGoogleFailure = (error) => {
-        console.error('Error al iniciar sesión con Google:', error);
+        console.error('Error:', error);
         alert('Error al iniciar sesión con Google');
     };
 
+    // Función para redirigir a la página de recuperación de contraseña
     const handlePasswordRecovery = () => {
-        navigate('/password-recovery');
+        navigate('/password-recovery'); // Redirige a la URL de recuperación de contraseña
     };
 
     return (
-        <GoogleOAuthProvider clientId="3191715525-54lsdrhbk22k0dk2e6cdrlqk2derqcbj.apps.googleusercontent.com">
+        <GoogleOAuthProvider clientId="TU_CLIENT_ID_DE_GOOGLE">
             <div className="login-container">
                 <img src="images/logo.webp" alt="Logo de la Organización" />
                 <h1>Bienvenid@ al Portal</h1>
@@ -109,15 +116,15 @@ const Login = () => {
                     />
                     <button type="submit">Iniciar Sesión</button>
                 </form>
-                <div className="google-login-button">
-                    <useGoogleLogin
-                        onSuccess={handleGoogleSuccess}
-                        onFailure={handleGoogleFailure}
-                        useOneTap
-                    />
-                </div>
+                <GoogleLogin
+                    onSuccess={handleGoogleSuccess}
+                    onFailure={handleGoogleFailure}
+                />
                 <p>
-                    <button onClick={handlePasswordRecovery} className="link-button">
+                    <button
+                        onClick={handlePasswordRecovery} // Ejecuta la función de redirección al hacer clic
+                        className="link-button"
+                    >
                         ¿Olvidó su contraseña?
                     </button>
                 </p>
