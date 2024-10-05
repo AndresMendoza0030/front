@@ -92,7 +92,7 @@ const Login = () => {
     };
 
     return (
-        <GoogleOAuthProvider clientId="TU_CLIENT_ID_DE_GOOGLE">
+        <GoogleOAuthProvider clientId="3191715525-54lsdrhbk22k0dk2e6cdrlqk2derqcbj.apps.googleusercontent.com">
             <div className="login-container">
                 <img src="images/logo.webp" alt="Logo de la Organización" />
                 <h1>Bienvenid@ al Portal</h1>
