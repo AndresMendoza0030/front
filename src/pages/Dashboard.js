@@ -163,7 +163,7 @@ const Dashboard = () => {
       </div>
       <div className="card">
         <h2>Comentarios y Retroalimentación</h2>
-        <form method="post" enctype="multipart/form-data" action="/api/submits_feedback" className="feedback-form">
+        <form method="post" encType="multipart/form-data" action="/api/submits_feedback" className="feedback-form">
           <textarea name="feedback" placeholder="Escribe tus comentarios aquí..." required></textarea>
           <div className="form-group">
             <label htmlFor="capture">Subir una captura (opcional):</label>

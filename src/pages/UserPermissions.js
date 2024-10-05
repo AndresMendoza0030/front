@@ -20,12 +20,9 @@ const UserPermissions = ({ users, fetchUsers, createPermission, deletePermission
     const [currentPage, setCurrentPage] = useState(1);
     const [usersPerPage] = useState(10);
 
-    useEffect(() => {
-        fetchPermissions();
-        fetchRoles();
-    }, [token]);
 
     const fetchPermissions = async () => {
+        const toastId = 'fetch-permissions';
         try {
             const response = await fetch('https://backend-production-5e0d.up.railway.app/api/permissions', {
                 method: 'GET',
@@ -40,18 +37,25 @@ const UserPermissions = ({ users, fetchUsers, createPermission, deletePermission
 
             if (response.ok) {
                 setPermissions(Array.isArray(data.data.permissions) ? data.data.permissions : []);
-                toast.success('Permisos obtenidos correctamente');
+               /* if (!toast.isActive(toastId)) {
+                    toast.success('Permisos obtenidos correctamente', { toastId, containerId: 'my-toast-container' });
+                }*/
             } else {
                 console.error('Error al obtener permisos:', data.message);
-                toast.error(`Error al obtener permisos: ${data.message}`);
+                if (!toast.isActive(toastId)) {
+                    toast.error(`Error al obtener permisos: ${data.message}`, { toastId, containerId: 'my-toast-container' });
+                }
             }
         } catch (error) {
             console.error('Error al obtener permisos:', error.message);
-            toast.error(`Error al obtener permisos: ${error.message}`);
+            if (!toast.isActive(toastId)) {
+                toast.error(`Error al obtener permisos: ${error.message}`, { toastId, containerId: 'my-toast-container' });
+            }
         }
     };
 
     const fetchRoles = async () => {
+        const toastId = 'fetch-roles';
         try {
             const response = await fetch('https://backend-production-5e0d.up.railway.app/api/roles', {
                 method: 'GET',
@@ -66,17 +70,27 @@ const UserPermissions = ({ users, fetchUsers, createPermission, deletePermission
 
             if (response.ok) {
                 setRoles(Array.isArray(data.data.roles) ? data.data.roles : []);
-                toast.success('Roles obtenidos correctamente');
+                /*if (!toast.isActive(toastId)) {
+                    toast.success('Roles obtenidos correctamente', { toastId, containerId: 'my-toast-container' });
+                }*/
             } else {
                 console.error('Error al obtener roles:', data.message);
-                toast.error(`Error al obtener roles: ${data.message}`);
+                if (!toast.isActive(toastId)) {
+                    toast.error(`Error al obtener roles: ${data.message}`, { toastId, containerId: 'my-toast-container' });
+                }
             }
         } catch (error) {
             console.error('Error al obtener roles:', error.message);
-            toast.error(`Error al obtener roles: ${error.message}`);
+            if (!toast.isActive(toastId)) {
+                toast.error(`Error al obtener roles: ${error.message}`, { toastId, containerId: 'my-toast-container' });
+            }
         }
     };
 
+    useEffect(() => {
+        fetchPermissions();
+        fetchRoles();
+    }, [token]);
     const openModal = (user) => {
         setSelectedUser(user);
         setShowModal(true);
@@ -89,6 +103,7 @@ const UserPermissions = ({ users, fetchUsers, createPermission, deletePermission
     };
 
     const handleDeactivateUser = (userId) => {
+        const toastId = `deactivate-user-${userId}`;
         toast.warn(
             ({ closeToast }) => (
                 <div style={{ textAlign: 'center' }}>
@@ -134,11 +149,13 @@ const UserPermissions = ({ users, fetchUsers, createPermission, deletePermission
                 closeOnClick: false,
                 closeButton: false,
                 draggable: false,
+                containerId: 'my-toast-container',
             }
         );
     };
 
     const confirmDeactivateUser = async (userId) => {
+        const toastId = `confirm-deactivate-user-${userId}`;
         try {
             const response = await fetch(`https://backend-production-5e0d.up.railway.app/api/deactivate-user`, {
                 method: 'POST',
@@ -151,16 +168,22 @@ const UserPermissions = ({ users, fetchUsers, createPermission, deletePermission
 
             if (response.ok) {
                 console.log('Usuario desactivado exitosamente');
-                toast.success('Usuario desactivado exitosamente');
+                if (!toast.isActive(toastId)) {
+                    toast.success('Usuario desactivado exitosamente', { toastId, containerId: 'my-toast-container' });
+                }
                 fetchUsers(); // Actualizar la lista de usuarios
             } else {
                 const errorText = await response.text();
                 console.error('Error al desactivar usuario:', errorText);
-                toast.error(`Error al desactivar usuario: ${errorText}`);
+                if (!toast.isActive(toastId)) {
+                    toast.error(`Error al desactivar usuario: ${errorText}`, { toastId, containerId: 'my-toast-container' });
+                }
             }
         } catch (error) {
             console.error('Error al desactivar usuario:', error.message);
-            toast.error(`Error al desactivar usuario: ${error.message}`);
+            if (!toast.isActive(toastId)) {
+                toast.error(`Error al desactivar usuario: ${error.message}`, { toastId, containerId: 'my-toast-container' });
+            }
         }
     };
 
@@ -174,7 +197,7 @@ const UserPermissions = ({ users, fetchUsers, createPermission, deletePermission
 
     return (
         <div className="config-container">
-            <ToastContainer />
+            <ToastContainer containerId="my-toast-container" />
             <div className="config-header">
                 <h1>Gestión de Usuarios</h1>
             </div>
