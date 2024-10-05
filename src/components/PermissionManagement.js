@@ -35,9 +35,9 @@ const PermissionManagement = () => {
 
             if (response.ok) {
                 setPermissions(Array.isArray(data.data.permissions) ? data.data.permissions : []);
-                /*if (!toast.isActive(toastId)) {
+                if (!toast.isActive(toastId)) {
                     toast.success('Permisos obtenidos correctamente', { toastId, containerId: 'my-toast-container' });
-                }*/
+                }
             } else {
                 console.error('Error al obtener permisos:', data.message);
                 if (!toast.isActive(toastId)) {
@@ -168,6 +168,7 @@ const PermissionManagement = () => {
                 closeButton: false,
                 draggable: false,
                 containerId: 'my-toast-container',
+                toastId,
             }
         );
     };

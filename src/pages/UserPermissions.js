@@ -20,6 +20,10 @@ const UserPermissions = ({ users, fetchUsers, createPermission, deletePermission
     const [currentPage, setCurrentPage] = useState(1);
     const [usersPerPage] = useState(10);
 
+    useEffect(() => {
+        fetchPermissions();
+        fetchRoles();
+    }, [token]);
 
     const fetchPermissions = async () => {
         const toastId = 'fetch-permissions';
@@ -37,9 +41,6 @@ const UserPermissions = ({ users, fetchUsers, createPermission, deletePermission
 
             if (response.ok) {
                 setPermissions(Array.isArray(data.data.permissions) ? data.data.permissions : []);
-               /* if (!toast.isActive(toastId)) {
-                    toast.success('Permisos obtenidos correctamente', { toastId, containerId: 'my-toast-container' });
-                }*/
             } else {
                 console.error('Error al obtener permisos:', data.message);
                 if (!toast.isActive(toastId)) {
@@ -70,9 +71,6 @@ const UserPermissions = ({ users, fetchUsers, createPermission, deletePermission
 
             if (response.ok) {
                 setRoles(Array.isArray(data.data.roles) ? data.data.roles : []);
-                /*if (!toast.isActive(toastId)) {
-                    toast.success('Roles obtenidos correctamente', { toastId, containerId: 'my-toast-container' });
-                }*/
             } else {
                 console.error('Error al obtener roles:', data.message);
                 if (!toast.isActive(toastId)) {
@@ -87,10 +85,6 @@ const UserPermissions = ({ users, fetchUsers, createPermission, deletePermission
         }
     };
 
-    useEffect(() => {
-        fetchPermissions();
-        fetchRoles();
-    }, [token]);
     const openModal = (user) => {
         setSelectedUser(user);
         setShowModal(true);
@@ -150,6 +144,7 @@ const UserPermissions = ({ users, fetchUsers, createPermission, deletePermission
                 closeButton: false,
                 draggable: false,
                 containerId: 'my-toast-container',
+                toastId,
             }
         );
     };

@@ -5,7 +5,6 @@ import { useAuth } from '../context/AuthContext';
 import { usePermissions } from '../context/PermissionsContext';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-
 import { FaPlus, FaTrashAlt, FaPencilAlt } from 'react-icons/fa';
 
 const RoleManagement = ({ createRole, deleteRole }) => {
@@ -15,7 +14,6 @@ const RoleManagement = ({ createRole, deleteRole }) => {
     const [showModal, setShowModal] = useState(false);
     const [showCreateModal, setShowCreateModal] = useState(false);
     const { token } = useAuth();
-    const { hasPermission } = usePermissions();
     const [newRoleName, setNewRoleName] = useState('');
 
     useEffect(() => {
@@ -37,20 +35,13 @@ const RoleManagement = ({ createRole, deleteRole }) => {
             const data = await response.json();
             if (response.ok) {
                 setRoles(Array.isArray(data.data.roles) ? data.data.roles : []);
-               /* if (!toast.isActive(toastId)) {
-                    toast.success('Roles obtenidos correctamente', { toastId, containerId: 'my-toast-container' });
-                }*/
             } else {
                 console.error('Error al obtener roles:', data.message);
-                if (!toast.isActive(toastId)) {
-                    toast.error(`Error al obtener roles: ${data.message}`, { toastId, containerId: 'my-toast-container' });
-                }
+                toast.error(`Error al obtener roles: ${data.message}`, { toastId, containerId: 'my-toast-container' });
             }
         } catch (error) {
             console.error('Error al obtener roles:', error.message);
-            if (!toast.isActive(toastId)) {
-                toast.error(`Error al obtener roles: ${error.message}`, { toastId, containerId: 'my-toast-container' });
-            }
+            toast.error(`Error al obtener roles: ${error.message}`, { toastId, containerId: 'my-toast-container' });
         }
     };
 
@@ -68,20 +59,13 @@ const RoleManagement = ({ createRole, deleteRole }) => {
             const data = await response.json();
             if (response.ok) {
                 setPermissions(Array.isArray(data.data.permissions) ? data.data.permissions : []);
-               /* if (!toast.isActive(toastId)) {
-                    toast.success('Permisos obtenidos correctamente', { toastId, containerId: 'my-toast-container' });
-                }*/
             } else {
                 console.error('Error al obtener permisos:', data.message);
-                if (!toast.isActive(toastId)) {
-                    toast.error(`Error al obtener permisos: ${data.message}`, { toastId, containerId: 'my-toast-container' });
-                }
+                toast.error(`Error al obtener permisos: ${data.message}`, { toastId, containerId: 'my-toast-container' });
             }
         } catch (error) {
             console.error('Error al obtener permisos:', error.message);
-            if (!toast.isActive(toastId)) {
-                toast.error(`Error al obtener permisos: ${error.message}`, { toastId, containerId: 'my-toast-container' });
-            }
+            toast.error(`Error al obtener permisos: ${error.message}`, { toastId, containerId: 'my-toast-container' });
         }
     };
 
@@ -105,19 +89,13 @@ const RoleManagement = ({ createRole, deleteRole }) => {
                 setNewRoleName('');
                 setShowCreateModal(false);
                 fetchRoles();
-                if (!toast.isActive(toastId)) {
-                    toast.success('Rol creado exitosamente', { toastId, containerId: 'my-toast-container' });
-                }
+                toast.success('Rol creado exitosamente', { toastId, containerId: 'my-toast-container' });
             } catch (error) {
                 console.error('Error al crear rol:', error.message);
-                if (!toast.isActive(toastId)) {
-                    toast.error(`Error al crear rol: ${error.message}`, { toastId, containerId: 'my-toast-container' });
-                }
+                toast.error(`Error al crear rol: ${error.message}`, { toastId, containerId: 'my-toast-container' });
             }
         } else {
-            if (!toast.isActive(toastId)) {
-                toast.error('El nombre del rol no puede estar vacío', { toastId, containerId: 'my-toast-container' });
-            }
+            toast.error('El nombre del rol no puede estar vacío', { toastId, containerId: 'my-toast-container' });
         }
     };
 
@@ -142,14 +120,10 @@ const RoleManagement = ({ createRole, deleteRole }) => {
                                 try {
                                     await deleteRole(roleId);
                                     fetchRoles();
-                                    if (!toast.isActive(toastId)) {
-                                        toast.success('Rol eliminado exitosamente', { toastId, containerId: 'my-toast-container' });
-                                    }
+                                    toast.success('Rol eliminado exitosamente', { toastId, containerId: 'my-toast-container' });
                                 } catch (error) {
                                     console.error('Error al eliminar rol:', error.message);
-                                    if (!toast.isActive(toastId)) {
-                                        toast.error(`Error al eliminar rol: ${error.message}`, { toastId, containerId: 'my-toast-container' });
-                                    }
+                                    toast.error(`Error al eliminar rol: ${error.message}`, { toastId, containerId: 'my-toast-container' });
                                 }
                                 closeToast();
                             }}
@@ -180,6 +154,7 @@ const RoleManagement = ({ createRole, deleteRole }) => {
                 closeButton: false,
                 draggable: false,
                 containerId: 'my-toast-container',
+                toastId,
             }
         );
     };
