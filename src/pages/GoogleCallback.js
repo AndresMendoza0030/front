@@ -25,6 +25,11 @@ const GoogleCallback = () => {
       return;
     }
 
+    // Imprimir los parámetros extraídos en la consola
+    console.log('Token:', token);
+    console.log('Permissions:', permissions);
+    console.log('Roles:', roles);
+
     if (token) {
       try {
         login(roles, token, 'Usuario Google');
