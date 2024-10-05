@@ -10,15 +10,26 @@ const GoogleCallback = () => {
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const token = urlParams.get('token');
-    const permissions = JSON.parse(urlParams.get('permissions') || '[]');
-    const roles = JSON.parse(urlParams.get('roles') || '[]');
+    const permissionsParam = urlParams.get('permissions');
+    const rolesParam = urlParams.get('roles');
+
+    let permissions = [];
+    let roles = [];
+
+    try {
+      permissions = permissionsParam ? JSON.parse(permissionsParam) : [];
+      roles = rolesParam ? JSON.parse(rolesParam) : [];
+    } catch (error) {
+      toast.error('Error al procesar los permisos o roles.');
+      navigate('/login');
+      return;
+    }
 
     if (token) {
-      // Store token, permissions, and roles in your authentication context or state management
       try {
         login(roles, token, 'Usuario Google');
         toast.success('Autenticado exitosamente con Google.');
-        navigate('/dashboard'); // Redirige al dashboard después del login
+        navigate('/dashboard');
       } catch (error) {
         toast.error('Error al iniciar sesión con Google: ' + error.message);
         navigate('/login');
