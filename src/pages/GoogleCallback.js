@@ -15,15 +15,14 @@ const GoogleCallback = () => {
 
     if (token) {
       // Store token, permissions, and roles in your authentication context or state management
-      login(roles, token, 'Usuario Google')
-        .then(() => {
-          toast.success('Autenticado exitosamente con Google.');
-          navigate('/dashboard'); // Redirige al dashboard después del login
-        })
-        .catch((error) => {
-          toast.error('Error al iniciar sesión con Google: ' + error.message);
-          navigate('/login');
-        });
+      try {
+        login(roles, token, 'Usuario Google');
+        toast.success('Autenticado exitosamente con Google.');
+        navigate('/dashboard'); // Redirige al dashboard después del login
+      } catch (error) {
+        toast.error('Error al iniciar sesión con Google: ' + error.message);
+        navigate('/login');
+      }
     } else {
       toast.error('Token no encontrado en la URL');
       navigate('/login');
