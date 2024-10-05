@@ -16,9 +16,9 @@ const GoogleCallback = () => {
       const token = urlParams.get('token');
       const permissionsParam = urlParams.get('permissions');
       const rolesParam = urlParams.get('roles');
+      const email = urlParams.get('email');
 
-      // Validación temprana del token
-     
+    
 
       let permissions = [];
       let roles = [];
@@ -70,7 +70,7 @@ const GoogleCallback = () => {
         // Establecer los permisos combinados en el contexto
         console.log('Permisos combinados finales:', combinedPermissions);
         setPermissions(combinedPermissions);
-        login(roles, token, 'Usuario Google');
+        login(roles, token, 'Usuario Google', email);
         toast.success('Autenticado exitosamente con Google.');
         navigate('/dashboard');
       } catch (error) {

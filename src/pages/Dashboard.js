@@ -52,7 +52,7 @@ const Dashboard = () => {
   const { username } = useAuth();
   useEffect(() => {
    
-    console.log('Nombre de usuario recuperado de localStorage:', username); // Depuración
+   
  
     
     const data = mockData;

@@ -61,12 +61,12 @@ const Login = () => {
 
                 // Establecer los permisos combinados
                 setPermissions(combinedPermissions);
-                login(roles, token, user.name);
+                login(roles, token, user.name, user.email); // Añadido email al login
                 navigate('/dashboard');
             } else {
                 console.error('Login falló con mensaje:', data.message);
             }
-            
+
         } catch (error) {
             console.error('Error al iniciar sesión:', error.message);
             alert('Error al iniciar sesión, verifica tus credenciales');
