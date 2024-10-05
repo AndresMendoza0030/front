@@ -1,72 +1,74 @@
 // src/components/UserPermissions.js
+
 import React, { useState, useEffect } from 'react';
 import './UserPermissions.css';
 import UserModal from './UserModal';
 import { useAuth } from '../context/AuthContext';
+import { FaPlus, FaTrashAlt, FaPencilAlt } from 'react-icons/fa';
 
-const UserPermissions = ({ users, fetchUsers }) => {
+const UserPermissions = ({ users, fetchUsers, createPermission, deletePermission }) => {
     const [permissions, setPermissions] = useState([]);
     const [roles, setRoles] = useState([]);
     const [selectedUser, setSelectedUser] = useState(null);
     const [showModal, setShowModal] = useState(false);
     const { token } = useAuth();
+    const [newPermissionName, setNewPermissionName] = useState('');
+    const [showCreateModal, setShowCreateModal] = useState(false);
 
     // Estados para la paginación
     const [currentPage, setCurrentPage] = useState(1);
     const [usersPerPage] = useState(10);
 
     useEffect(() => {
-        const fetchPermissions = async () => {
-            try {
-                const response = await fetch('https://backend-production-5e0d.up.railway.app/api/permissions', {
-                    method: 'GET',
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                        'Content-Type': 'application/json',
-                    },
-                });
-
-                const data = await response.json();
-                console.log("Permissions received from server:", data);
-
-                if (response.ok) {
-                    // Accedemos a data.data.permissions
-                    setPermissions(Array.isArray(data.data.permissions) ? data.data.permissions : []);
-                } else {
-                    console.error('Error al obtener permisos:', data.message);
-                }
-            } catch (error) {
-                console.error('Error al obtener permisos:', error.message);
-            }
-        };
-
-        const fetchRoles = async () => {
-            try {
-                const response = await fetch('https://backend-production-5e0d.up.railway.app/api/roles', {
-                    method: 'GET',
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                        'Content-Type': 'application/json',
-                    },
-                });
-
-                const data = await response.json();
-                console.log("Roles received from server:", data);
-
-                if (response.ok) {
-                    // Accedemos a data.data.roles
-                    setRoles(Array.isArray(data.data.roles) ? data.data.roles : []);
-                } else {
-                    console.error('Error al obtener roles:', data.message);
-                }
-            } catch (error) {
-                console.error('Error al obtener roles:', error.message);
-            }
-        };
-
         fetchPermissions();
         fetchRoles();
     }, [token]);
+
+    const fetchPermissions = async () => {
+        try {
+            const response = await fetch('https://backend-production-5e0d.up.railway.app/api/permissions', {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                },
+            });
+
+            const data = await response.json();
+            console.log("Permissions received from server:", data);
+
+            if (response.ok) {
+                setPermissions(Array.isArray(data.data.permissions) ? data.data.permissions : []);
+            } else {
+                console.error('Error al obtener permisos:', data.message);
+            }
+        } catch (error) {
+            console.error('Error al obtener permisos:', error.message);
+        }
+    };
+
+    const fetchRoles = async () => {
+        try {
+            const response = await fetch('https://backend-production-5e0d.up.railway.app/api/roles', {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                },
+            });
+
+            const data = await response.json();
+            console.log("Roles received from server:", data);
+
+            if (response.ok) {
+                setRoles(Array.isArray(data.data.roles) ? data.data.roles : []);
+            } else {
+                console.error('Error al obtener roles:', data.message);
+            }
+        } catch (error) {
+            console.error('Error al obtener roles:', error.message);
+        }
+    };
 
     const openModal = (user) => {
         setSelectedUser(user);
@@ -77,6 +79,41 @@ const UserPermissions = ({ users, fetchUsers }) => {
         setSelectedUser(null);
         setShowModal(false);
         fetchUsers();
+    };
+
+    const handleCreatePermission = async (e) => {
+        e.preventDefault();
+        if (newPermissionName.trim() !== '') {
+            await createPermission(newPermissionName);
+            setNewPermissionName('');
+            setShowCreateModal(false);
+            fetchPermissions();
+        }
+    };
+
+    const handleDeactivateUser = async (userId) => {
+        if (window.confirm('¿Estás seguro de que deseas desactivar este usuario?')) {
+            try {
+                const response = await fetch('https://backend-production-5e0d.up.railway.app/api/user', {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ id: userId }),
+                });
+
+                if (response.ok) {
+                    console.log('Usuario desactivado exitosamente');
+                    fetchUsers();
+                } else {
+                    const errorText = await response.text();
+                    console.error('Error al desactivar usuario:', errorText);
+                }
+            } catch (error) {
+                console.error('Error al desactivar usuario:', error.message);
+            }
+        }
     };
 
     // Calcular los usuarios a mostrar en la página actual
@@ -90,10 +127,14 @@ const UserPermissions = ({ users, fetchUsers }) => {
     return (
         <div className="config-container">
             <div className="config-header">
-                <h1>Configuración</h1>
+                <h1>Gestión de Usuarios</h1>
+                
             </div>
             <div className="config-form">
-                <h2>Gestión de Usuarios</h2>
+            <div className="header-container">
+        <h2>Gestión de Usuarios</h2>
+       
+    </div>
                 <table>
                     <thead>
                         <tr>
@@ -113,8 +154,15 @@ const UserPermissions = ({ users, fetchUsers }) => {
                                 <td>{user.status}</td>
                                 <td>{user.roles?.map(role => role.name).join(', ') || 'Sin rol'}</td>
                                 <td>{user.permissions?.map(permission => permission.name).join(', ') || 'Sin permisos'}</td>
-                                <td>
-                                    <button className="edit-button" onClick={() => openModal(user)}>Editar</button>
+                                <td className="actions-cell">
+                                <div className="buttons-container">
+                                    <button className="edit-button" onClick={() => openModal(user)}>
+                                        <FaPencilAlt />
+                                    </button>
+                                    <button className="pagination-button" onClick={() => handleDeactivateUser(user.id)}>
+                                        <FaTrashAlt />
+                                    </button>
+                                    </div>
                                 </td>
                             </tr>
                         ))}
@@ -136,6 +184,24 @@ const UserPermissions = ({ users, fetchUsers }) => {
                     permissions={permissions}
                     closeModal={closeModal}
                 />
+            )}
+            {showCreateModal && (
+                <div className="modal">
+                    <div className="modal-content">
+                        <h2>Crear Nuevo Permiso</h2>
+                        <form onSubmit={handleCreatePermission}>
+                            <input
+                                type="text"
+                                value={newPermissionName}
+                                onChange={(e) => setNewPermissionName(e.target.value)}
+                                placeholder="Nombre del nuevo permiso"
+                                required
+                            />
+                            <button type="submit">Crear</button>
+                            <button type="button" onClick={() => setShowCreateModal(false)}>Cancelar</button>
+                        </form>
+                    </div>
+                </div>
             )}
         </div>
     );

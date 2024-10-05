@@ -23,8 +23,40 @@ body, html {
 .pagination-button {
     margin: 0 5px;
     padding: 5px 10px;
-    border-radius: 8px;
     background-color: #D10A11;
+    cursor: pointer;
+    color: white;
+    border-color: #D10A11;;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+   
+
+}
+
+
+.pagination-button:hover {
+    background-color: #b4090f;
+}
+.actions-cell .buttons-container {
+    display: flex;
+    gap: 2px; /* Espacio entre los botones */
+}
+.header-container {
+    display: flex;
+    align-items: center; /* Alinea los elementos verticalmente */
+    justify-content: space-between; /* Distribuye espacio si hay más elementos en la fila */
+}
+
+.header-container h2 {
+    margin-right: 16px; /* Añade un margen derecho para que haya espacio entre el título y el botón */
+}
+
+.add-button {
+    display: flex;
+    align-items: center;
+    padding: 8px 12px;
+    box-shadow: rgba(0, 0, 0, 0.15) 1.95px 1.95px 2.6px;
     cursor: pointer;
 }
 

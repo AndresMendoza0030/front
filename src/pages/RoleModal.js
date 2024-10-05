@@ -88,7 +88,7 @@ const RoleModal = ({ role, permissions = [], closeModal }) => {
         <div className="modal" style={{ display: 'block' }}>
             <div className="modal-content">
                 <span className="close" onClick={closeModal}>&times;</span>
-                <h2>Editar Rol</h2>
+                <h2>Editar </h2>
                 <form onSubmit={handleSubmit}>
                     {/* Nombre del rol */}
                     <div className="form-group">

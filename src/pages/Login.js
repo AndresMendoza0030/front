@@ -1,4 +1,3 @@
-// src/pages/Login.js
 import React, { useState, useEffect } from 'react';
 import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google';
 import { useAuth } from '../context/AuthContext';
@@ -35,9 +34,33 @@ const Login = () => {
             console.log('Datos recibidos del servidor:', data);
 
             if (response.ok) {
-                console.log('Login fue exitoso, ahora navegaremos al dashboard...');
                 const { token, user, permissions, roles } = data.data;
-                setPermissions(permissions);
+                let combinedPermissions = [...permissions]; // Comienza con los permisos específicos del usuario
+
+                // Iterar sobre los roles y obtener los permisos asociados usando el filtro
+                for (const role of roles) {
+                    const roleResponse = await fetch(`https://backend-production-5e0d.up.railway.app/api/roles?name=${role.name}`, {
+                        method: 'GET',
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'application/json',
+                        },
+                    });
+
+                    const roleData = await roleResponse.json();
+                    if (roleResponse.ok && roleData.data && roleData.data.roles.length > 0) {
+                        const rolePermissions = roleData.data.roles[0].permissions;
+                        combinedPermissions = [
+                            ...combinedPermissions,
+                            ...rolePermissions.filter(
+                                (p) => !combinedPermissions.some((cp) => cp.id === p.id)
+                            ),
+                        ];
+                    }
+                }
+
+                // Establecer los permisos combinados
+                setPermissions(combinedPermissions);
                 login(roles, token, user.name);
                 navigate('/dashboard');
             } else {
@@ -68,7 +91,31 @@ const Login = () => {
 
             if (result.ok && data.data.token) {
                 const { token, user, permissions, roles } = data.data;
-                setPermissions(permissions);
+                let combinedPermissions = [...permissions];
+
+                // Obtener permisos por cada rol usando el nombre del rol
+                for (const role of roles) {
+                    const roleResponse = await fetch(`https://backend-production-5e0d.up.railway.app/api/roles?name=${role.name}`, {
+                        method: 'GET',
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'application/json',
+                        },
+                    });
+
+                    const roleData = await roleResponse.json();
+                    if (roleResponse.ok && roleData.data && roleData.data.roles.length > 0) {
+                        const rolePermissions = roleData.data.roles[0].permissions;
+                        combinedPermissions = [
+                            ...combinedPermissions,
+                            ...rolePermissions.filter(
+                                (p) => !combinedPermissions.some((cp) => cp.id === p.id)
+                            ),
+                        ];
+                    }
+                }
+
+                setPermissions(combinedPermissions);
                 login(roles, token, user.name);
                 navigate('/dashboard');
             } else {

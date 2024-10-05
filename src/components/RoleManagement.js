@@ -6,13 +6,18 @@ import RoleModal from '../pages/RoleModal';
 import { useAuth } from '../context/AuthContext';
 import { usePermissions } from '../context/PermissionsContext';
 
-const RoleManagement = () => {
+import { FaPlus, FaTrashAlt, FaPencilAlt } from 'react-icons/fa';
+
+const RoleManagement = ({ createRole, deleteRole }) => {
     const [roles, setRoles] = useState([]);
     const [permissions, setPermissions] = useState([]);
     const [selectedRole, setSelectedRole] = useState(null);
     const [showModal, setShowModal] = useState(false);
+    const [showCreateModal, setShowCreateModal] = useState(false);
     const { token } = useAuth();
     const { hasPermission } = usePermissions();
+    const [newRoleName, setNewRoleName] = useState('');
+
     useEffect(() => {
         fetchRoles();
         fetchPermissions();
@@ -71,13 +76,37 @@ const RoleManagement = () => {
         fetchRoles();
     };
 
+    const handleCreateRole = async (e) => {
+        e.preventDefault();
+        if (newRoleName.trim() !== '') {
+            await createRole(newRoleName);
+            setNewRoleName('');
+            setShowCreateModal(false);
+            fetchRoles();
+        }
+    };
+
+    const handleDeleteRole = async (roleId) => {
+        if (window.confirm('¿Estás seguro de que deseas eliminar este rol?')) {
+            await deleteRole(roleId);
+            fetchRoles();
+        }
+    };
+
     return (
         <div className="config-container">
             <div className="config-header">
-                <h1>Gestión de Roles</h1>
+                
+                <h1>Roles y Permisos Asociados</h1>
+               
             </div>
             <div className="config-form">
+            <div className="header-container">
                 <h2>Roles y Permisos Asociados</h2>
+                <button className="add-button" onClick={() => setShowCreateModal(true)}>
+                    <FaPlus /> 
+                </button>
+                </div>
                 <table>
                     <thead>
                         <tr>
@@ -92,7 +121,8 @@ const RoleManagement = () => {
                                 <td>{role.name.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())}</td>
                                 <td>{role.permissions?.map(permission => permission.name.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())).join(', ') || 'Sin permisos'}</td>
                                 <td>
-                                    <button className="edit-button" onClick={() => openModal(role)}>Editar</button>
+                                    <button className="edit-button" onClick={() => openModal(role)}><FaPencilAlt /></button>
+                                    <button className="pagination-button" onClick={() => handleDeleteRole(role.id)}><FaTrashAlt/></button>
                                 </td>
                             </tr>
                         ))}
@@ -106,8 +136,27 @@ const RoleManagement = () => {
                     closeModal={closeModal}
                 />
             )}
+            {showCreateModal && (
+                <div className="modal">
+                    <div className="modal-content">
+                        <h2>Crear Nuevo Rol</h2>
+                        <form onSubmit={handleCreateRole}>
+                            <input
+                                type="text"
+                                value={newRoleName}
+                                onChange={(e) => setNewRoleName(e.target.value)}
+                                placeholder="Nombre del nuevo rol"
+                                required
+                            />
+                            <button type="submit">Crear</button>
+                            <button type="button" onClick={() => setShowCreateModal(false)}>Cancelar</button>
+                        </form>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
 
 export default RoleManagement;
+
