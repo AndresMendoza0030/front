@@ -16,6 +16,13 @@ const GoogleCallback = () => {
       const permissionsParam = urlParams.get('permissions');
       const rolesParam = urlParams.get('roles');
 
+      // Validación temprana del token
+      if (!token) {
+        toast.error('Token no encontrado en la URL');
+        navigate('/login');
+        return;
+      }
+
       let permissions = [];
       let roles = [];
 
@@ -33,46 +40,41 @@ const GoogleCallback = () => {
       console.log('Permissions:', permissions);
       console.log('Roles:', roles);
 
-      if (token) {
-        try {
-          let combinedPermissions = [...permissions];
+      try {
+        let combinedPermissions = [...permissions];
 
-          // Obtener permisos asociados a cada rol
-          for (const role of roles) {
-            const roleResponse = await fetch(
-              `https://backend-production-5e0d.up.railway.app/api/roles?name=${role.name}`,
-              {
-                method: 'GET',
-                headers: {
-                  'Authorization': `Bearer ${token}`,
-                  'Content-Type': 'application/json',
-                },
-              }
-            );
-
-            const roleData = await roleResponse.json();
-            if (roleResponse.ok && roleData.data && roleData.data.roles.length > 0) {
-              const rolePermissions = roleData.data.roles[0].permissions;
-              combinedPermissions = [
-                ...combinedPermissions,
-                ...rolePermissions.filter(
-                  (p) => !combinedPermissions.some((cp) => cp.id === p.id)
-                ),
-              ];
+        // Obtener permisos asociados a cada rol
+        for (const role of roles) {
+          const roleResponse = await fetch(
+            `https://backend-production-5e0d.up.railway.app/api/roles?name=${role.name}`,
+            {
+              method: 'GET',
+              headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json',
+              },
             }
-          }
+          );
 
-          // Establecer los permisos combinados en el contexto
-          setPermissions(combinedPermissions);
-          login(roles, token, 'Usuario Google');
-          toast.success('Autenticado exitosamente con Google.');
-          navigate('/dashboard');
-        } catch (error) {
-          toast.error('Error al iniciar sesión con Google: ' + error.message);
-          navigate('/login');
+          const roleData = await roleResponse.json();
+          if (roleResponse.ok && roleData.data && roleData.data.roles.length > 0) {
+            const rolePermissions = roleData.data.roles[0].permissions;
+            combinedPermissions = [
+              ...combinedPermissions,
+              ...rolePermissions.filter(
+                (p) => !combinedPermissions.some((cp) => cp.id === p.id)
+              ),
+            ];
+          }
         }
-      } else {
-        toast.error('Token no encontrado en la URL');
+
+        // Establecer los permisos combinados en el contexto
+        setPermissions(combinedPermissions);
+        login(roles, token, 'Usuario Google');
+        toast.success('Autenticado exitosamente con Google.');
+        navigate('/dashboard');
+      } catch (error) {
+        toast.error('Error al iniciar sesión con Google: ' + error.message);
         navigate('/login');
       }
     };
