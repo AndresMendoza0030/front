@@ -1,4 +1,3 @@
-// src/pages/Login.js
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { usePermissions } from '../context/PermissionsContext';
@@ -46,11 +45,9 @@ const Login = () => {
     };
 
     const handleGoogleLogin = () => {
-        // Redirige al usuario al backend para manejar la autenticación de Google
         window.location.href = 'https://backend-production-5e0d.up.railway.app/auth/google/';
     };
 
-    // Función para redirigir a la página de recuperación de contraseña
     const handlePasswordRecovery = () => {
         navigate('/password-recovery');
     };
@@ -80,7 +77,10 @@ const Login = () => {
                 <button type="submit">Iniciar Sesión</button>
             </form>
             <button onClick={handleGoogleLogin} className="google-login-button">
-                Iniciar sesión con Google
+                <div className="google-icon-wrapper">
+                    <img className="google-icon" src="https://upload.wikimedia.org/wikipedia/commons/4/4a/Logo_2013_Google.png" alt="Google Icon" />
+                </div>
+                <span className="button-text">Iniciar sesión con Google</span>
             </button>
             <p>
                 <button onClick={handlePasswordRecovery} className="link-button">
