@@ -18,10 +18,11 @@ const GoogleCallback = () => {
       const rolesParam = urlParams.get('roles');
       const email = urlParams.get('email');
 
-    
+      console.log('Email extraído de la URL:', email);
 
       let permissions = [];
       let roles = [];
+      let username = 'Usuario Google';
 
       try {
         permissions = permissionsParam ? JSON.parse(permissionsParam) : [];
@@ -36,6 +37,26 @@ const GoogleCallback = () => {
       }
 
       try {
+        // Obtener el nombre de usuario a partir del email
+        const userResponse = await fetch(
+          `https://backend-production-5e0d.up.railway.app/api/users?email=${email}`,
+          {
+            method: 'GET',
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json',
+            },
+          }
+        );
+
+        const userData = await userResponse.json();
+        if (userResponse.ok && userData.data && userData.data.length > 0) {
+          username = userData.data[0].name;
+          console.log('Nombre de usuario obtenido:', username);
+        } else {
+          console.warn('No se pudo obtener el nombre de usuario a partir del email proporcionado.');
+        }
+
         let combinedPermissions = [...permissions];
 
         // Obtener permisos asociados a cada rol
@@ -70,7 +91,7 @@ const GoogleCallback = () => {
         // Establecer los permisos combinados en el contexto
         console.log('Permisos combinados finales:', combinedPermissions);
         setPermissions(combinedPermissions);
-        login(roles, token, 'Usuario Google', email);
+        login(roles, token, username, email);
         toast.success('Autenticado exitosamente con Google.');
         navigate('/dashboard');
       } catch (error) {
