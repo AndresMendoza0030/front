@@ -118,7 +118,7 @@ const Login = () => {
                 </form>
                 <GoogleLogin
                     onSuccess={handleGoogleSuccess}
-                    onFailure={handleGoogleFailure}
+                 
                 />
                 <p>
                     <button
