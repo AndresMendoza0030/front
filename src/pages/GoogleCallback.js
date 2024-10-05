@@ -18,12 +18,7 @@ const GoogleCallback = () => {
       const rolesParam = urlParams.get('roles');
 
       // Validación temprana del token
-      if (!token) {
-        console.error('Token no encontrado en la URL');
-        toast.error('Token no encontrado en la URL');
-        navigate('/login');
-        return;
-      }
+     
 
       let permissions = [];
       let roles = [];
