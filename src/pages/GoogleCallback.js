@@ -10,6 +10,8 @@ const GoogleCallback = () => {
   const { setPermissions } = usePermissions();
 
   useEffect(() => {
+    let isMounted = true; // Para asegurarse de que el proceso solo se ejecute una vez
+
     const processGoogleCallback = async () => {
       console.log('Iniciando proceso de Google Callback...');
       const urlParams = new URLSearchParams(window.location.search);
@@ -50,8 +52,8 @@ const GoogleCallback = () => {
         );
 
         const userData = await userResponse.json();
-        if (userResponse.ok && userData.data && userData.data.length > 0) {
-          username = userData.data[0].name;
+        if (userResponse.ok && userData.data && userData.data.users.length > 0) {
+          username = userData.data.users[0].name;
           console.log('Nombre de usuario obtenido:', username);
         } else {
           console.warn('No se pudo obtener el nombre de usuario a partir del email proporcionado.');
@@ -90,10 +92,12 @@ const GoogleCallback = () => {
 
         // Establecer los permisos combinados en el contexto
         console.log('Permisos combinados finales:', combinedPermissions);
-        setPermissions(combinedPermissions);
-        login(roles, token, username, email);
-        toast.success('Autenticado exitosamente con Google.');
-        navigate('/dashboard');
+        if (isMounted) {
+          setPermissions(combinedPermissions);
+          login(roles, token, username, email);
+          toast.success('Autenticado exitosamente con Google.');
+          navigate('/dashboard');
+        }
       } catch (error) {
         console.error('Error al iniciar sesión con Google:', error);
         toast.error('Error al iniciar sesión con Google: ' + error.message);
@@ -102,6 +106,10 @@ const GoogleCallback = () => {
     };
 
     processGoogleCallback();
+
+    return () => {
+      isMounted = false; // Limpiar para asegurarse de que el proceso solo se ejecute una vez
+    };
   }, [navigate, login, setPermissions]);
 
   return (
