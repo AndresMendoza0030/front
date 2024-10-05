@@ -1,125 +1,90 @@
-import React, { useState, useEffect } from 'react';
-import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google';
+import React, { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { usePermissions } from '../context/PermissionsContext';
-import { useNavigate } from 'react-router-dom';
-import './Login.css';
+import { toast } from 'react-toastify';
 
-const Login = () => {
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const { login } = useAuth();
-    const { setPermissions } = usePermissions();
-    const navigate = useNavigate();
+const GoogleCallback = () => {
+  const navigate = useNavigate();
+  const { login } = useAuth();
+  const { setPermissions } = usePermissions();
 
-    useEffect(() => {
-        document.body.classList.add('login-page');
-        return () => {
-            document.body.classList.remove('login-page');
-        };
-    }, []);
+  useEffect(() => {
+    const processGoogleCallback = async () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const token = urlParams.get('token');
+      const permissionsParam = urlParams.get('permissions');
+      const rolesParam = urlParams.get('roles');
 
-    const handleLogin = async (e) => {
-        e.preventDefault();
+      let permissions = [];
+      let roles = [];
+
+      try {
+        permissions = permissionsParam ? JSON.parse(permissionsParam) : [];
+        roles = rolesParam ? JSON.parse(rolesParam) : [];
+      } catch (error) {
+        toast.error('Error al procesar los permisos o roles.');
+        navigate('/login');
+        return;
+      }
+
+      // Imprimir los parámetros extraídos en la consola para depuración
+      console.log('Token:', token);
+      console.log('Permissions:', permissions);
+      console.log('Roles:', roles);
+
+      if (token) {
         try {
-            const response = await fetch('https://backend-production-5e0d.up.railway.app/api/login', {
-                method: 'POST',
+          let combinedPermissions = [...permissions];
+
+          // Obtener permisos asociados a cada rol
+          for (const role of roles) {
+            const roleResponse = await fetch(
+              `https://backend-production-5e0d.up.railway.app/api/roles?name=${role.name}`,
+              {
+                method: 'GET',
                 headers: {
-                    'Content-Type': 'application/json',
+                  'Authorization': `Bearer ${token}`,
+                  'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ email, password }),
-            });
+              }
+            );
 
-            const data = await response.json();
-            console.log('Datos recibidos del servidor:', data);
-
-            if (response.ok) {
-                const { token, user, permissions, roles } = data.data;
-                let combinedPermissions = [...permissions]; // Comienza con los permisos específicos del usuario
-
-                // Iterar sobre los roles y obtener los permisos asociados usando el filtro
-                for (const role of roles) {
-                    const roleResponse = await fetch(`https://backend-production-5e0d.up.railway.app/api/roles?name=${role.name}`, {
-                        method: 'GET',
-                        headers: {
-                            'Authorization': `Bearer ${token}`,
-                            'Content-Type': 'application/json',
-                        },
-                    });
-
-                    const roleData = await roleResponse.json();
-                    if (roleResponse.ok && roleData.data && roleData.data.roles.length > 0) {
-                        const rolePermissions = roleData.data.roles[0].permissions;
-                        combinedPermissions = [
-                            ...combinedPermissions,
-                            ...rolePermissions.filter(
-                                (p) => !combinedPermissions.some((cp) => cp.id === p.id)
-                            ),
-                        ];
-                    }
-                }
-
-                // Establecer los permisos combinados
-                setPermissions(combinedPermissions);
-                login(roles, token, user.name);
-                navigate('/dashboard');
-            } else {
-                console.error('Login falló con mensaje:', data.message);
+            const roleData = await roleResponse.json();
+            if (roleResponse.ok && roleData.data && roleData.data.roles.length > 0) {
+              const rolePermissions = roleData.data.roles[0].permissions;
+              combinedPermissions = [
+                ...combinedPermissions,
+                ...rolePermissions.filter(
+                  (p) => !combinedPermissions.some((cp) => cp.id === p.id)
+                ),
+              ];
             }
-            
+          }
+
+          // Establecer los permisos combinados en el contexto
+          setPermissions(combinedPermissions);
+          login(roles, token, 'Usuario Google');
+          toast.success('Autenticado exitosamente con Google.');
+          navigate('/dashboard');
         } catch (error) {
-            console.error('Error al iniciar sesión:', error.message);
-            alert('Error al iniciar sesión, verifica tus credenciales');
+          toast.error('Error al iniciar sesión con Google: ' + error.message);
+          navigate('/login');
         }
+      } else {
+        toast.error('Token no encontrado en la URL');
+        navigate('/login');
+      }
     };
 
-    const handlePasswordRecovery = () => {
-        navigate('/password-recovery');
-    };
+    processGoogleCallback();
+  }, [navigate, login, setPermissions]);
 
-    const handleGoogleLogin = () => {
-        window.location.href = 'https://backend-production-5e0d.up.railway.app/auth/google/';
-    };
-
-    return (
-        <GoogleOAuthProvider clientId="3191715525-54lsdrhbk22k0dk2e6cdrlqk2derqcbj.apps.googleusercontent.com">
-            <div className="login-container">
-                <img src="images/logo.webp" alt="Logo de la Organización" />
-                <h1>Bienvenid@ al Portal</h1>
-                <p>Inicio de Sesión</p>
-                <form onSubmit={handleLogin}>
-                    <input
-                        type="email"
-                        name="email"
-                        placeholder="Correo electrónico"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        required
-                    />
-                    <input
-                        type="password"
-                        name="password"
-                        placeholder="Contraseña"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        required
-                    />
-                    <button type="submit">Iniciar Sesión</button>
-                </form>
-                <button onClick={handleGoogleLogin} className="google-login-button">
-                    Iniciar sesión con Google
-                </button>
-                <p>
-                    <button
-                        onClick={handlePasswordRecovery}
-                        className="link-button"
-                    >
-                        ¿Olvidó su contraseña?
-                    </button>
-                </p>
-            </div>
-        </GoogleOAuthProvider>
-    );
+  return (
+    <div>
+      <h2>Procesando inicio de sesión con Google...</h2>
+    </div>
+  );
 };
 
-export default Login;
+export default GoogleCallback;
