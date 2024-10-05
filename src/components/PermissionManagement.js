@@ -57,7 +57,7 @@ const PermissionManagement = () => {
         const toastId = 'create-permission';
         if (newPermissionName.trim() !== '') {
             try {
-                const response = await fetch('https://backend-production-5e0d.up.railway.app/api/permissions', {
+                const response = await fetch('https://backend-production-5e0d.up.railway.app/api/permission', {
                     method: 'POST',
                     headers: {
                         'Authorization': `Bearer ${token}`,
