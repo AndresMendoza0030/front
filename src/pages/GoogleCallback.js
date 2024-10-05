@@ -5,15 +5,17 @@ import { toast } from 'react-toastify';
 
 const GoogleCallback = () => {
   const navigate = useNavigate();
-  const { loginWithToken } = useAuth();
+  const { login } = useAuth();
 
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const token = urlParams.get('token');
+    const permissions = JSON.parse(urlParams.get('permissions') || '[]');
+    const roles = JSON.parse(urlParams.get('roles') || '[]');
 
     if (token) {
-      // Store token in your authentication context or state management
-      loginWithToken(token)
+      // Store token, permissions, and roles in your authentication context or state management
+      login(roles, token, 'Usuario Google')
         .then(() => {
           toast.success('Autenticado exitosamente con Google.');
           navigate('/dashboard'); // Redirige al dashboard después del login
@@ -26,7 +28,7 @@ const GoogleCallback = () => {
       toast.error('Token no encontrado en la URL');
       navigate('/login');
     }
-  }, [navigate, loginWithToken]);
+  }, [navigate, login]);
 
   return (
     <div>

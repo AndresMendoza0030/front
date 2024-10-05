@@ -73,62 +73,12 @@ const Login = () => {
         }
     };
 
-    const handleGoogleSuccess = async (response) => {
-        try {
-            const idToken = response.credential;
-
-            const result = await fetch('https://backend-production-5e0d.up.railway.app/auth/google/callback', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ idToken }),
-            });
-
-            const data = await result.json();
-
-            console.log('Datos recibidos del servidor (Google):', data);
-
-            if (result.ok && data.data.token) {
-                const { token, user, permissions, roles } = data.data;
-                let combinedPermissions = [...permissions];
-
-                // Obtener permisos por cada rol usando el nombre del rol
-                for (const role of roles) {
-                    const roleResponse = await fetch(`https://backend-production-5e0d.up.railway.app/api/roles?name=${role.name}`, {
-                        method: 'GET',
-                        headers: {
-                            'Authorization': `Bearer ${token}`,
-                            'Content-Type': 'application/json',
-                        },
-                    });
-
-                    const roleData = await roleResponse.json();
-                    if (roleResponse.ok && roleData.data && roleData.data.roles.length > 0) {
-                        const rolePermissions = roleData.data.roles[0].permissions;
-                        combinedPermissions = [
-                            ...combinedPermissions,
-                            ...rolePermissions.filter(
-                                (p) => !combinedPermissions.some((cp) => cp.id === p.id)
-                            ),
-                        ];
-                    }
-                }
-
-                setPermissions(combinedPermissions);
-                login(roles, token, user.name);
-                navigate('/dashboard');
-            } else {
-                throw new Error('Error al autenticar con la API');
-            }
-        } catch (error) {
-            console.error('Error:', error);
-            alert('Error al iniciar sesión con Google');
-        }
-    };
-
     const handlePasswordRecovery = () => {
         navigate('/password-recovery');
+    };
+
+    const handleGoogleLogin = () => {
+        window.location.href = 'https://backend-production-5e0d.up.railway.app/auth/google/';
     };
 
     return (
@@ -156,13 +106,9 @@ const Login = () => {
                     />
                     <button type="submit">Iniciar Sesión</button>
                 </form>
-                <GoogleLogin
-                    onSuccess={handleGoogleSuccess}
-                    onError={(error) => {
-                        console.error('Error:', error);
-                        alert('Error al iniciar sesión con Google');
-                    }}
-                />
+                <button onClick={handleGoogleLogin} className="google-login-button">
+                    Iniciar sesión con Google
+                </button>
                 <p>
                     <button
                         onClick={handlePasswordRecovery}
