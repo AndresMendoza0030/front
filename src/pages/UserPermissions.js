@@ -1,10 +1,11 @@
-// src/components/UserPermissions.js
-
 import React, { useState, useEffect } from 'react';
 import './UserPermissions.css';
 import UserModal from './UserModal';
 import { useAuth } from '../context/AuthContext';
 import { FaPlus, FaTrashAlt, FaPencilAlt } from 'react-icons/fa';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import 'react-toastify/dist/ReactToastify.minimal.css'; // Opcional, para un diseño más limpio
 
 const UserPermissions = ({ users, fetchUsers, createPermission, deletePermission }) => {
     const [permissions, setPermissions] = useState([]);
@@ -39,11 +40,14 @@ const UserPermissions = ({ users, fetchUsers, createPermission, deletePermission
 
             if (response.ok) {
                 setPermissions(Array.isArray(data.data.permissions) ? data.data.permissions : []);
+                toast.success('Permisos obtenidos correctamente');
             } else {
                 console.error('Error al obtener permisos:', data.message);
+                toast.error(`Error al obtener permisos: ${data.message}`);
             }
         } catch (error) {
             console.error('Error al obtener permisos:', error.message);
+            toast.error(`Error al obtener permisos: ${error.message}`);
         }
     };
 
@@ -62,11 +66,14 @@ const UserPermissions = ({ users, fetchUsers, createPermission, deletePermission
 
             if (response.ok) {
                 setRoles(Array.isArray(data.data.roles) ? data.data.roles : []);
+                toast.success('Roles obtenidos correctamente');
             } else {
                 console.error('Error al obtener roles:', data.message);
+                toast.error(`Error al obtener roles: ${data.message}`);
             }
         } catch (error) {
             console.error('Error al obtener roles:', error.message);
+            toast.error(`Error al obtener roles: ${error.message}`);
         }
     };
 
@@ -81,38 +88,79 @@ const UserPermissions = ({ users, fetchUsers, createPermission, deletePermission
         fetchUsers();
     };
 
-    const handleCreatePermission = async (e) => {
-        e.preventDefault();
-        if (newPermissionName.trim() !== '') {
-            await createPermission(newPermissionName);
-            setNewPermissionName('');
-            setShowCreateModal(false);
-            fetchPermissions();
-        }
+    const handleDeactivateUser = (userId) => {
+        toast.warn(
+            ({ closeToast }) => (
+                <div style={{ textAlign: 'center' }}>
+                    <p style={{ fontWeight: 'bold' }}>¿Está seguro de que desea desactivar este usuario?</p>
+                    <div style={{ display: 'flex', justifyContent: 'center', gap: '15px', marginTop: '10px' }}>
+                        <button
+                            style={{
+                                padding: '8px 12px',
+                                borderRadius: '5px',
+                                backgroundColor: '#d9534f',
+                                color: '#fff',
+                                border: 'none',
+                                cursor: 'pointer',
+                                fontWeight: 'bold',
+                            }}
+                            onClick={() => {
+                                confirmDeactivateUser(userId);
+                                closeToast();
+                            }}
+                        >
+                            Sí, Desactivar
+                        </button>
+                        <button
+                            style={{
+                                padding: '8px 12px',
+                                borderRadius: '5px',
+                                backgroundColor: '#5bc0de',
+                                color: '#fff',
+                                border: 'none',
+                                cursor: 'pointer',
+                                fontWeight: 'bold',
+                            }}
+                            onClick={closeToast}
+                        >
+                            Cancelar
+                        </button>
+                    </div>
+                </div>
+            ),
+            {
+                position: "top-center",
+                autoClose: false, // No cerrar automáticamente para permitir interacción
+                closeOnClick: false,
+                closeButton: false,
+                draggable: false,
+            }
+        );
     };
 
-    const handleDeactivateUser = async (userId) => {
-        if (window.confirm('¿Estás seguro de que deseas desactivar este usuario?')) {
-            try {
-                const response = await fetch('https://backend-production-5e0d.up.railway.app/api/user', {
-                    method: 'DELETE',
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ id: userId }),
-                });
+    const confirmDeactivateUser = async (userId) => {
+        try {
+            const response = await fetch(`https://backend-production-5e0d.up.railway.app/api/deactivate-user`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ id: userId }),
+            });
 
-                if (response.ok) {
-                    console.log('Usuario desactivado exitosamente');
-                    fetchUsers();
-                } else {
-                    const errorText = await response.text();
-                    console.error('Error al desactivar usuario:', errorText);
-                }
-            } catch (error) {
-                console.error('Error al desactivar usuario:', error.message);
+            if (response.ok) {
+                console.log('Usuario desactivado exitosamente');
+                toast.success('Usuario desactivado exitosamente');
+                fetchUsers(); // Actualizar la lista de usuarios
+            } else {
+                const errorText = await response.text();
+                console.error('Error al desactivar usuario:', errorText);
+                toast.error(`Error al desactivar usuario: ${errorText}`);
             }
+        } catch (error) {
+            console.error('Error al desactivar usuario:', error.message);
+            toast.error(`Error al desactivar usuario: ${error.message}`);
         }
     };
 
@@ -126,15 +174,14 @@ const UserPermissions = ({ users, fetchUsers, createPermission, deletePermission
 
     return (
         <div className="config-container">
+            <ToastContainer />
             <div className="config-header">
                 <h1>Gestión de Usuarios</h1>
-                
             </div>
             <div className="config-form">
-            <div className="header-container">
-        <h2>Gestión de Usuarios</h2>
-       
-    </div>
+                <div className="header-container">
+                    <h2>Gestión de Usuarios</h2>
+                </div>
                 <table>
                     <thead>
                         <tr>
@@ -155,13 +202,13 @@ const UserPermissions = ({ users, fetchUsers, createPermission, deletePermission
                                 <td>{user.roles?.map(role => role.name).join(', ') || 'Sin rol'}</td>
                                 <td>{user.permissions?.map(permission => permission.name).join(', ') || 'Sin permisos'}</td>
                                 <td className="actions-cell">
-                                <div className="buttons-container">
-                                    <button className="edit-button" onClick={() => openModal(user)}>
-                                        <FaPencilAlt />
-                                    </button>
-                                    <button className="pagination-button" onClick={() => handleDeactivateUser(user.id)}>
-                                        <FaTrashAlt />
-                                    </button>
+                                    <div className="buttons-container">
+                                        <button className="edit-button" onClick={() => openModal(user)}>
+                                            <FaPencilAlt />
+                                        </button>
+                                        <button className="pagination-button" onClick={() => handleDeactivateUser(user.id)}>
+                                            <FaTrashAlt />
+                                        </button>
                                     </div>
                                 </td>
                             </tr>
@@ -184,24 +231,6 @@ const UserPermissions = ({ users, fetchUsers, createPermission, deletePermission
                     permissions={permissions}
                     closeModal={closeModal}
                 />
-            )}
-            {showCreateModal && (
-                <div className="modal">
-                    <div className="modal-content">
-                        <h2>Crear Nuevo Permiso</h2>
-                        <form onSubmit={handleCreatePermission}>
-                            <input
-                                type="text"
-                                value={newPermissionName}
-                                onChange={(e) => setNewPermissionName(e.target.value)}
-                                placeholder="Nombre del nuevo permiso"
-                                required
-                            />
-                            <button type="submit">Crear</button>
-                            <button type="button" onClick={() => setShowCreateModal(false)}>Cancelar</button>
-                        </form>
-                    </div>
-                </div>
             )}
         </div>
     );
