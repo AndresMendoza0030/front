@@ -112,7 +112,7 @@ const PermissionManagement = () => {
                             }}
                             onClick={async () => {
                                 try {
-                                    const response = await fetch('https://backend-production-5e0d.up.railway.app/api/permissions', {
+                                    const response = await fetch('https://backend-production-5e0d.up.railway.app/api/permission', {
                                         method: 'DELETE',
                                         headers: {
                                             'Authorization': `Bearer ${token}`,
