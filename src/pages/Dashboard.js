@@ -112,7 +112,7 @@ const Dashboard = () => {
         <Carousel showArrows={true} autoPlay={true} infiniteLoop={true}>
           {bulletinBoard.map(announcement => (
             <div key={announcement.id}>
-              <img src={announcement.imagen_url} alt={`Aviso ${announcement.id}`} />
+              <img src={announcement.imagen} alt={`Aviso ${announcement.id}`} />
               <p className="legend">{announcement.fecha_publicacion}</p>
             </div>
           ))}
