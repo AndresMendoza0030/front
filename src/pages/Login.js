@@ -3,6 +3,8 @@ import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google';
 import { useAuth } from '../context/AuthContext';
 import { usePermissions } from '../context/PermissionsContext';
 import { useNavigate } from 'react-router-dom';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import './Login.css';
 
 const Login = () => {
@@ -65,11 +67,12 @@ const Login = () => {
                 navigate('/dashboard');
             } else {
                 console.error('Login falló con mensaje:', data.message);
+                toast.error('Usuario o contraseña incorrectos', { containerId: 'my-toast-container' });
             }
 
         } catch (error) {
             console.error('Error al iniciar sesión:', error.message);
-            alert('Error al iniciar sesión, verifica tus credenciales');
+            toast.error('Error al iniciar sesión, verifica tus credenciales', { containerId: 'my-toast-container' });
         }
     };
 
@@ -84,6 +87,7 @@ const Login = () => {
     return (
         <GoogleOAuthProvider clientId="3191715525-54lsdrhbk22k0dk2e6cdrlqk2derqcbj.apps.googleusercontent.com">
             <div className="login-container">
+                <ToastContainer containerId="my-toast-container" />
                 <img src="images/logo.webp" alt="Logo de la Organización" />
                 <h1>Bienvenid@ al Portal</h1>
                 <p>Inicio de Sesión</p>
@@ -107,6 +111,7 @@ const Login = () => {
                     <button type="submit">Iniciar Sesión</button>
                 </form>
                 <button onClick={handleGoogleLogin} className="google-login-button">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Google_%22G%22_logo.svg/768px-Google_%22G%22_logo.svg.png" alt="Google logo" />
                     Iniciar sesión con Google
                 </button>
                 <p>
