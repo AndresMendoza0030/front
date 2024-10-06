@@ -1,7 +1,7 @@
 // src/components/RoleModal.js
 
 import React, { useState, useEffect } from 'react';
-import './UserPermissions.css'; // Puedes reutilizar los estilos o crear uno nuevo
+import './Login.css'; // Reutilizando los estilos del Login
 import { useAuth } from '../context/AuthContext';
 
 const RoleModal = ({ role, permissions = [], closeModal }) => {
@@ -86,10 +86,10 @@ const RoleModal = ({ role, permissions = [], closeModal }) => {
 
     return (
         <div className="modal" style={{ display: 'block' }}>
-            <div className="modal-content">
-                <span className="close" onClick={closeModal}>&times;</span>
-                <h2>Editar </h2>
-                <form onSubmit={handleSubmit}>
+            <div className="modal-content login-container">
+          <span className="close" onClick={closeModal}>&times;</span>
+                <h2>Editar Rol</h2>
+                <form onSubmit={handleSubmit} className="">
                     {/* Nombre del rol */}
                     <div className="form-group">
                         <label className="form-label">Nombre del Rol:</label>
@@ -105,15 +105,17 @@ const RoleModal = ({ role, permissions = [], closeModal }) => {
                         <label className="form-label">Permisos Asociados:</label>
                         <div className="permissions-list">
                             {permissions.map((permission) => (
-                                <div key={permission.id} className="permission-item">
-                                    <label>
-                                        <input
-                                            type="checkbox"
-                                            checked={selectedPermissions.includes(permission.id)}
-                                            onChange={() => handlePermissionChange(permission.id)}
-                                        />
-                                        {permission.name.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())}
-                                    </label>
+                                <div key={permission.id} className="permission-item" style={{ display: 'flex', alignItems: 'center' }}>
+                                    <input
+                                        type="checkbox"
+                                        checked={selectedPermissions.includes(permission.id)}
+                                        onChange={() => handlePermissionChange(permission.id)}
+                                        style={{ marginLeft: '-20px',marginRight: '10px', width: '20px' }}
+                                    />
+                                    <label style={{ whiteSpace: 'nowrap',  textOverflow: 'ellipsis', width: '200px' }}>
+    {permission.name.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())}
+</label>
+
                                 </div>
                             ))}
                         </div>

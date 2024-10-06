@@ -3,8 +3,9 @@ import '../pages/UserPermissions.css'; // Puedes reutilizar los estilos o crear 
 import RoleModal from '../pages/RoleModal';
 import { useAuth } from '../context/AuthContext';
 import { usePermissions } from '../context/PermissionsContext';
-import { ToastContainer, toast } from 'react-toastify';
+import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+
 import { FaPlus, FaTrashAlt, FaPencilAlt } from 'react-icons/fa';
 
 const RoleManagement = ({ createRole, deleteRole }) => {
@@ -22,7 +23,6 @@ const RoleManagement = ({ createRole, deleteRole }) => {
     }, [token]);
 
     const fetchRoles = async () => {
-        const toastId = 'fetch-roles';
         try {
             const response = await fetch('https://backend-production-5e0d.up.railway.app/api/roles', {
                 method: 'GET',
@@ -37,16 +37,15 @@ const RoleManagement = ({ createRole, deleteRole }) => {
                 setRoles(Array.isArray(data.data.roles) ? data.data.roles : []);
             } else {
                 console.error('Error al obtener roles:', data.message);
-                toast.error(`Error al obtener roles: ${data.message}`, { toastId, containerId: 'my-toast-container' });
+                toast.error(`Error al obtener roles: ${data.message}`, { containerId: 'my-toast-container' });
             }
         } catch (error) {
             console.error('Error al obtener roles:', error.message);
-            toast.error(`Error al obtener roles: ${error.message}`, { toastId, containerId: 'my-toast-container' });
+            toast.error(`Error al obtener roles: ${error.message}`, { containerId: 'my-toast-container' });
         }
     };
 
     const fetchPermissions = async () => {
-        const toastId = 'fetch-permissions';
         try {
             const response = await fetch('https://backend-production-5e0d.up.railway.app/api/permissions', {
                 method: 'GET',
@@ -61,11 +60,11 @@ const RoleManagement = ({ createRole, deleteRole }) => {
                 setPermissions(Array.isArray(data.data.permissions) ? data.data.permissions : []);
             } else {
                 console.error('Error al obtener permisos:', data.message);
-                toast.error(`Error al obtener permisos: ${data.message}`, { toastId, containerId: 'my-toast-container' });
+                toast.error(`Error al obtener permisos: ${data.message}`, { containerId: 'my-toast-container' });
             }
         } catch (error) {
             console.error('Error al obtener permisos:', error.message);
-            toast.error(`Error al obtener permisos: ${error.message}`, { toastId, containerId: 'my-toast-container' });
+            toast.error(`Error al obtener permisos: ${error.message}`, { containerId: 'my-toast-container' });
         }
     };
 
@@ -82,7 +81,7 @@ const RoleManagement = ({ createRole, deleteRole }) => {
 
     const handleCreateRole = async (e) => {
         e.preventDefault();
-        const toastId = 'create-role';
+        const toastId = 'my-toast-container';
         if (newRoleName.trim() !== '') {
             try {
                 await createRole(newRoleName);
@@ -100,7 +99,7 @@ const RoleManagement = ({ createRole, deleteRole }) => {
     };
 
     const handleDeleteRole = async (roleId) => {
-        const toastId = `delete-role-${roleId}`;
+        const toastId = 'my-toast-container';
         toast.info(
             ({ closeToast }) => (
                 <div style={{ textAlign: 'center' }}>
@@ -120,10 +119,10 @@ const RoleManagement = ({ createRole, deleteRole }) => {
                                 try {
                                     await deleteRole(roleId);
                                     fetchRoles();
-                                    toast.success('Rol eliminado exitosamente', { toastId, containerId: 'my-toast-container' });
+                                    toast.success('Rol eliminado exitosamente', { containerId: 'my-toast-container' });
                                 } catch (error) {
                                     console.error('Error al eliminar rol:', error.message);
-                                    toast.error(`Error al eliminar rol: ${error.message}`, { toastId, containerId: 'my-toast-container' });
+                                    toast.error(`Error al eliminar rol: ${error.message}`, { containerId: 'my-toast-container' });
                                 }
                                 closeToast();
                             }}
@@ -161,7 +160,7 @@ const RoleManagement = ({ createRole, deleteRole }) => {
 
     return (
         <div className="config-container">
-            <ToastContainer containerId="my-toast-container" />
+      
             <div className="config-header">
                 <h1>Roles y Permisos Asociados</h1>
             </div>

@@ -25,8 +25,12 @@ const UserPermissions = ({ users, fetchUsers, createPermission, deletePermission
         fetchRoles();
     }, [token]);
 
+    useEffect(() => {
+        fetchRoles();
+    }, []);
+
     const fetchPermissions = async () => {
-        const toastId = 'fetch-permissions';
+        const toastId = 'my-toast-container';
         try {
             const response = await fetch('https://backend-production-5e0d.up.railway.app/api/permissions', {
                 method: 'GET',
@@ -56,7 +60,7 @@ const UserPermissions = ({ users, fetchUsers, createPermission, deletePermission
     };
 
     const fetchRoles = async () => {
-        const toastId = 'fetch-roles';
+        const toastId = 'my-toast-container';
         try {
             const response = await fetch('https://backend-production-5e0d.up.railway.app/api/roles', {
                 method: 'GET',
@@ -97,7 +101,7 @@ const UserPermissions = ({ users, fetchUsers, createPermission, deletePermission
     };
 
     const handleDeactivateUser = (userId) => {
-        const toastId = `deactivate-user-${userId}`;
+        const toastId = 'my-toast-container';
         toast.warn(
             ({ closeToast }) => (
                 <div style={{ textAlign: 'center' }}>
@@ -150,7 +154,7 @@ const UserPermissions = ({ users, fetchUsers, createPermission, deletePermission
     };
 
     const confirmDeactivateUser = async (userId) => {
-        const toastId = `confirm-deactivate-user-${userId}`;
+        const toastId = 'my-toast-container';
         try {
             const response = await fetch(`https://backend-production-5e0d.up.railway.app/api/deactivate-user`, {
                 method: 'POST',
@@ -182,6 +186,32 @@ const UserPermissions = ({ users, fetchUsers, createPermission, deletePermission
         }
     };
 
+    const fetchCombinedPermissions = async (roles) => {
+        let combinedPermissions = [...permissions];
+        for (const role of roles) {
+            try {
+                const roleResponse = await fetch(`https://backend-production-5e0d.up.railway.app/api/roles?name=${role.name}`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json',
+                    },
+                });
+                const roleData = await roleResponse.json();
+                if (roleResponse.ok && roleData.data && roleData.data.roles.length > 0) {
+                    const rolePermissions = roleData.data.roles[0].permissions;
+                    combinedPermissions = [
+                        ...combinedPermissions,
+                        ...rolePermissions.filter((p) => !combinedPermissions.some((cp) => cp.id === p.id)),
+                    ];
+                }
+            } catch (error) {
+                console.error('Error al obtener permisos del rol:', error.message);
+            }
+        }
+        return combinedPermissions;
+    };
+
     // Calcular los usuarios a mostrar en la página actual
     const indexOfLastUser = currentPage * usersPerPage;
     const indexOfFirstUser = indexOfLastUser - usersPerPage;
@@ -192,7 +222,7 @@ const UserPermissions = ({ users, fetchUsers, createPermission, deletePermission
 
     return (
         <div className="config-container">
-            <ToastContainer containerId="my-toast-container" />
+       
             <div className="config-header">
                 <h1>Gestión de Usuarios</h1>
             </div>
@@ -218,7 +248,11 @@ const UserPermissions = ({ users, fetchUsers, createPermission, deletePermission
                                 <td>{user.email}</td>
                                 <td>{user.status}</td>
                                 <td>{user.roles?.map(role => role.name).join(', ') || 'Sin rol'}</td>
-                                <td>{user.permissions?.map(permission => permission.name).join(', ') || 'Sin permisos'}</td>
+                                <td>
+                                    {user.roles && user.roles.length > 0
+                                        ? <CombinedPermissionsDisplay roles={user.roles} fetchRoles={fetchRoles} />
+                                        : 'Sin permisos'}
+                                </td>
                                 <td className="actions-cell">
                                     <div className="buttons-container">
                                         <button className="edit-button" onClick={() => openModal(user)}>
@@ -251,6 +285,45 @@ const UserPermissions = ({ users, fetchUsers, createPermission, deletePermission
                 />
             )}
         </div>
+    );
+};
+
+const CombinedPermissionsDisplay = ({ roles, fetchRoles }) => {
+    const { token } = useAuth();
+    const [combinedPermissions, setCombinedPermissions] = useState([]);
+
+    useEffect(() => {
+        const fetchCombinedPermissions = async () => {
+            let permissions = [];
+            for (const role of roles) {
+                try {
+                    const roleResponse = await fetch(`https://backend-production-5e0d.up.railway.app/api/roles?name=${role.name}`, {
+                        method: 'GET',
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'application/json',
+                        },
+                    });
+                    const roleData = await roleResponse.json();
+                    if (roleResponse.ok && roleData.data && roleData.data.roles.length > 0) {
+                        const rolePermissions = roleData.data.roles[0].permissions;
+                        permissions = [
+                            ...permissions,
+                            ...rolePermissions.filter((p) => !permissions.some((cp) => cp.id === p.id)),
+                        ];
+                    }
+                } catch (error) {
+                    console.error('Error al obtener permisos del rol:', error.message);
+                }
+            }
+            setCombinedPermissions(permissions);
+        };
+
+        fetchCombinedPermissions();
+    }, [roles, token, fetchRoles]);
+
+    return (
+        <>{combinedPermissions.map(permission => permission.name).join(', ') || 'Sin permisos'}</>
     );
 };
 

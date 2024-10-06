@@ -4,11 +4,12 @@ import { useAuth } from '../context/AuthContext';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { FaPlus, FaTrashAlt, FaPencilAlt } from 'react-icons/fa';
+import PermissionModal from '../pages/PermissionModal';
 
 const PermissionManagement = () => {
     const [permissions, setPermissions] = useState([]);
     const [showCreateModal, setShowCreateModal] = useState(false);
-    const [newPermissionName, setNewPermissionName] = useState('');
+    const [permissionToEdit, setPermissionToEdit] = useState(null);
     const { token } = useAuth();
 
     // Estados para la paginación
@@ -20,7 +21,7 @@ const PermissionManagement = () => {
     }, [token]);
 
     const fetchPermissions = async () => {
-        const toastId = 'fetch-permissions';
+        const toastId = 'my-toast-container';
         try {
             const response = await fetch('https://backend-production-5e0d.up.railway.app/api/permissions', {
                 method: 'GET',
@@ -35,9 +36,6 @@ const PermissionManagement = () => {
 
             if (response.ok) {
                 setPermissions(Array.isArray(data.data.permissions) ? data.data.permissions : []);
-                if (!toast.isActive(toastId)) {
-                    toast.success('Permisos obtenidos correctamente', { toastId, containerId: 'my-toast-container' });
-                }
             } else {
                 console.error('Error al obtener permisos:', data.message);
                 if (!toast.isActive(toastId)) {
@@ -52,49 +50,17 @@ const PermissionManagement = () => {
         }
     };
 
-    const handleCreatePermission = async (e) => {
-        e.preventDefault();
-        const toastId = 'create-permission';
-        if (newPermissionName.trim() !== '') {
-            try {
-                const response = await fetch('https://backend-production-5e0d.up.railway.app/api/permission', {
-                    method: 'POST',
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ name: newPermissionName }),
-                });
+    const handleEditPermission = (permission) => {
+        setPermissionToEdit(permission);
+    };
 
-                if (response.ok) {
-                    if (!toast.isActive(toastId)) {
-                        toast.success('Permiso creado exitosamente', { toastId, containerId: 'my-toast-container' });
-                    }
-                    setNewPermissionName('');
-                    setShowCreateModal(false);
-                    fetchPermissions();
-                } else {
-                    const errorText = await response.text();
-                    console.error('Error al crear permiso:', errorText);
-                    if (!toast.isActive(toastId)) {
-                        toast.error(`Error al crear permiso: ${errorText}`, { toastId, containerId: 'my-toast-container' });
-                    }
-                }
-            } catch (error) {
-                console.error('Error al crear permiso:', error.message);
-                if (!toast.isActive(toastId)) {
-                    toast.error(`Error al crear permiso: ${error.message}`, { toastId, containerId: 'my-toast-container' });
-                }
-            }
-        } else {
-            if (!toast.isActive(toastId)) {
-                toast.error('El nombre del permiso no puede estar vacío', { toastId, containerId: 'my-toast-container' });
-            }
-        }
+    const handleCreatePermission = () => {
+        setPermissionToEdit(null);
+        setShowCreateModal(true);
     };
 
     const handleDeletePermission = async (permissionId) => {
-        const toastId = `delete-permission-${permissionId}`;
+        const toastId = 'my-toast-container';
         toast.info(
             ({ closeToast }) => (
                 <div style={{ textAlign: 'center' }}>
@@ -183,14 +149,14 @@ const PermissionManagement = () => {
 
     return (
         <div className="config-container">
-            <ToastContainer containerId="my-toast-container" />
+           
             <div className="config-header">
                 <h1>Gestión de Permisos</h1>
             </div>
             <div className="config-form">
                 <div className="header-container">
                     <h2>Gestión de Permisos</h2>
-                    <button className="add-button" onClick={() => setShowCreateModal(true)}>
+                    <button className="add-button" onClick={handleCreatePermission}>
                         <FaPlus />
                     </button>
                 </div>
@@ -209,7 +175,7 @@ const PermissionManagement = () => {
                                 <td>{permission.name}</td>
                                 <td className="actions-cell">
                                     <div className="buttons-container" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '10px' }}>
-                                        <button className="edit-button" onClick={() => console.log(`Editar permiso ${permission.id}`)}>
+                                        <button className="edit-button" onClick={() => handleEditPermission(permission)}>
                                             <FaPencilAlt />
                                         </button>
                                         <button className="pagination-button" style={{ backgroundColor: 'red', color: 'white' }} onClick={() => handleDeletePermission(permission.id)}>
@@ -230,23 +196,15 @@ const PermissionManagement = () => {
                     ))}
                 </div>
             </div>
-            {showCreateModal && (
-                <div className="modal">
-                    <div className="modal-content">
-                        <h2>Crear Nuevo Permiso</h2>
-                        <form onSubmit={handleCreatePermission}>
-                            <input
-                                type="text"
-                                value={newPermissionName}
-                                onChange={(e) => setNewPermissionName(e.target.value)}
-                                placeholder="Nombre del nuevo permiso"
-                                required
-                            />
-                            <button type="submit">Crear</button>
-                            <button type="button" onClick={() => setShowCreateModal(false)}>Cancelar</button>
-                        </form>
-                    </div>
-                </div>
+            {(showCreateModal || permissionToEdit) && (
+                <PermissionModal
+                    permission={permissionToEdit}
+                    closeModal={() => {
+                        setPermissionToEdit(null);
+                        setShowCreateModal(false);
+                    }}
+                    fetchPermissions={fetchPermissions}
+                />
             )}
         </div>
     );

@@ -20,9 +20,10 @@ const BaseLayout = ({ children, flashMessages }) => {
       <Header />
       <div className="content">
         {children}
+        <ToastContainer containerId="my-toast-container" />
       </div>
       <Footer />
-      <ToastContainer />
+     
     </div>
   );
 };
