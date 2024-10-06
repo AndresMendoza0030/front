@@ -160,7 +160,6 @@ const RoleManagement = ({ createRole, deleteRole }) => {
 
     return (
         <div className="config-container">
-      
             <div className="config-header">
                 <h1>Roles y Permisos Asociados</h1>
             </div>
@@ -198,6 +197,7 @@ const RoleManagement = ({ createRole, deleteRole }) => {
                     role={selectedRole}
                     permissions={permissions}
                     closeModal={closeModal}
+                    assignedPermissions={selectedRole.permissions?.map(p => p.id) || []}
                 />
             )}
             {showCreateModal && (
