@@ -86,16 +86,17 @@ const Dashboard = () => {
         console.error('Error response from server:', errorText);
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-
+  
       const data = await response.json();
       console.log('Bulletin created:', data);
       setBulletinBoard([...bulletinBoard, data]);
       setShowBulletinModal(false);
     } catch (error) {
       console.error('Error creating bulletin:', error);
+      alert(`Error al crear el anuncio: ${error.message}`);
     }
   };
-
+  
   const handleBulletinFormChange = (e) => {
     const { name, value, files } = e.target;
     if (name === 'imagen') {
