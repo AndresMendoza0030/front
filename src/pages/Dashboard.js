@@ -28,7 +28,9 @@ const Dashboard = () => {
     // Fetch data from backend API
     const fetchBulletinBoard = async () => {
       try {
+        console.log('Fetching bulletin board data...');
         const response = await fetch('https://backend-production-5e0d.up.railway.app/api/bulletin-board');
+        console.log('Response status:', response.status);
         const data = await response.json();
         console.log('Bulletin Board:', data);
         setBulletinBoard(data);
@@ -60,7 +62,6 @@ const Dashboard = () => {
     showNotificationPopup();
   }, [unreadNotifications]);
 
-
   const handleBulletinSubmit = async (e) => {
     e.preventDefault();
     const formData = new FormData();
@@ -69,10 +70,23 @@ const Dashboard = () => {
     formData.append('fecha_publicacion', bulletinForm.fecha_publicacion);
   
     try {
+      console.log('Submitting bulletin form...');
+      console.log('Form data:', {
+        titulo: bulletinForm.titulo,
+        imagen: bulletinForm.imagen ? bulletinForm.imagen.name : null,
+        fecha_publicacion: bulletinForm.fecha_publicacion
+      });
       const response = await fetch('https://backend-production-5e0d.up.railway.app/api/bulletin-board', {
         method: 'POST',
         body: formData,
       });
+      console.log('Response status:', response.status);
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('Error response from server:', errorText);
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
       const data = await response.json();
       console.log('Bulletin created:', data);
       setBulletinBoard([...bulletinBoard, data]);
@@ -81,7 +95,7 @@ const Dashboard = () => {
       console.error('Error creating bulletin:', error);
     }
   };
-  
+
   const handleBulletinFormChange = (e) => {
     const { name, value, files } = e.target;
     if (name === 'imagen') {
@@ -90,24 +104,22 @@ const Dashboard = () => {
       setBulletinForm({ ...bulletinForm, [name]: value });
     }
   };
-  
 
   return (
     <div className="dashboard-container">
-    <div className="bulletin-board">
-  <Carousel showArrows={true} autoPlay={true} infiniteLoop={true}>
-    {bulletinBoard.map(announcement => (
-      <div key={announcement.id}>
-        <img src={announcement.imagen_url} alt={`Aviso ${announcement.id}`} />
-        <p className="legend">{announcement.fecha_publicacion}</p>
+      <div className="bulletin-board">
+        <Carousel showArrows={true} autoPlay={true} infiniteLoop={true}>
+          {bulletinBoard.map(announcement => (
+            <div key={announcement.id}>
+              <img src={announcement.imagen_url} alt={`Aviso ${announcement.id}`} />
+              <p className="legend">{announcement.fecha_publicacion}</p>
+            </div>
+          ))}
+        </Carousel>
+        {hasPermission('Guardar Banner') && (
+          <button onClick={() => setShowBulletinModal(true)} className="add-bulletin-button">Añadir Anuncio</button>
+        )}
       </div>
-    ))}
-  </Carousel>
-  {hasPermission('Guardar Banner') && (
-    <button onClick={() => setShowBulletinModal(true)} className="add-bulletin-button">Añadir Anuncio</button>
-  )}
-</div>
-
       <div className="welcome-message">
         <h1>Bienvenid@ al Centro Virtual de Documentación</h1>
         <p>Hola, {username}. Aquí tiene accesos rápidos a las funcionalidades principales.</p>
@@ -205,10 +217,9 @@ const Dashboard = () => {
                 <input type="text" id="titulo" name="titulo" value={bulletinForm.titulo} onChange={handleBulletinFormChange} required />
               </div>
               <div className="form-group">
-  <label htmlFor="imagen">Subir Imagen:</label>
-  <input type="file" id="imagen" name="imagen" onChange={handleBulletinFormChange} required />
-</div>
-
+                <label htmlFor="imagen">Subir Imagen:</label>
+                <input type="file" id="imagen" name="imagen" onChange={handleBulletinFormChange} required />
+              </div>
               <div className="form-group">
                 <label htmlFor="fecha_publicacion">Fecha de Publicación:</label>
                 <input type="datetime-local" id="fecha_publicacion" name="fecha_publicacion" value={bulletinForm.fecha_publicacion} onChange={handleBulletinFormChange} required />
