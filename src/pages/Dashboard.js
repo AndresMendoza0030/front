@@ -6,39 +6,10 @@ import "react-responsive-carousel/lib/styles/carousel.min.css";
 import { Carousel } from 'react-responsive-carousel';
 import { useAuth } from '../context/AuthContext';
 import { usePermissions } from '../context/PermissionsContext';
-const mockData = {
-  recent_documents: [
-    { filename: 'documento1.pdf' },
-    { filename: 'documento2.pdf' }
-  ],
-  favorite_documents: [
-    { filename: 'favorito1.pdf' },
-    { filename: 'favorito2.pdf' }
-  ],
-  shared_documents: [
-    { filename: 'compartido1.pdf', shared_by: 'María López' },
-    { filename: 'compartido2.pdf', shared_by: 'Carlos García' }
-  ],
-  notifications: [
-    { id: 1, message: 'Nueva actualización disponible.', filename: 'actualizacion1.pdf', is_read: 0, date: '2024-07-13' },
-    { id: 2, message: 'Recordatorio de reunión.', filename: 'reunion.pdf', is_read: 0, date: '2024-07-14' }
-  ],
-  user_tasks: [
-    { id: 1, description: 'Terminar reporte mensual', due_date: '2024-07-20' },
-    { id: 2, description: 'Preparar presentación', due_date: '2024-07-22' }
-  ],
-  bulletin_board: [
-    { id: 1, image: '/images/background.jpg', date: '2024-07-13' },
-    { id: 2, image: '/images/background.jpg', date: '2024-07-14' },
-    { id: 3, image: '/images/background.jpg', date: '2024-07-15' },
-    { id: 4, image: '/images/background.jpg', date: '2024-07-16' },
-    { id: 5, image: '/images/background.jpg', date: '2024-07-17' }
-  ]
-};
 
 const Dashboard = () => {
- 
-  const { hasPermission } = usePermissions(); 
+
+  const { hasPermission } = usePermissions();
   const [recentDocuments, setRecentDocuments] = useState([]);
   const [favoriteDocuments, setFavoriteDocuments] = useState([]);
   const [sharedDocuments, setSharedDocuments] = useState([]);
@@ -49,24 +20,28 @@ const Dashboard = () => {
   const [modalMessage, setModalMessage] = useState('');
   const [modalLink, setModalLink] = useState('');
   const [bulletinBoard, setBulletinBoard] = useState([]);
+  const [showBulletinModal, setShowBulletinModal] = useState(false);
+  const [bulletinForm, setBulletinForm] = useState({ titulo: '', imagen: '', fecha_publicacion: '' });
   const { username } = useAuth();
+
   useEffect(() => {
-   
-   
- 
-    
-    const data = mockData;
-    setRecentDocuments(data.recent_documents);
-    setFavoriteDocuments(data.favorite_documents);
-    setSharedDocuments(data.shared_documents);
-    setNotifications(data.notifications);
-    setUserTasks(data.user_tasks);
-    setUnreadNotifications(data.notifications.filter(notification => notification.is_read === 0));
-    setBulletinBoard(data.bulletin_board);
+    // Fetch data from backend API
+    const fetchBulletinBoard = async () => {
+      try {
+        const response = await fetch('https://backend-production-5e0d.up.railway.app/api/bulletin-board');
+        const data = await response.json();
+        console.log('Bulletin Board:', data);
+        setBulletinBoard(data);
+      } catch (error) {
+        console.error('Error fetching bulletin board:', error);
+      }
+    };
+
+    fetchBulletinBoard();
   }, []);
 
   const handleMarkAsRead = (id) => {
-    setNotifications(notifications.map(notification => 
+    setNotifications(notifications.map(notification =>
       notification.id === id ? { ...notification, is_read: 1 } : notification
     ));
     setUnreadNotifications(unreadNotifications.filter(notification => notification.id !== id));
@@ -85,18 +60,54 @@ const Dashboard = () => {
     showNotificationPopup();
   }, [unreadNotifications]);
 
+
+  const handleBulletinSubmit = async (e) => {
+    e.preventDefault();
+    const formData = new FormData();
+    formData.append('titulo', bulletinForm.titulo);
+    formData.append('imagen', bulletinForm.imagen);
+    formData.append('fecha_publicacion', bulletinForm.fecha_publicacion);
+  
+    try {
+      const response = await fetch('https://backend-production-5e0d.up.railway.app/api/bulletin-board', {
+        method: 'POST',
+        body: formData,
+      });
+      const data = await response.json();
+      console.log('Bulletin created:', data);
+      setBulletinBoard([...bulletinBoard, data]);
+      setShowBulletinModal(false);
+    } catch (error) {
+      console.error('Error creating bulletin:', error);
+    }
+  };
+  
+  const handleBulletinFormChange = (e) => {
+    const { name, value, files } = e.target;
+    if (name === 'imagen') {
+      setBulletinForm({ ...bulletinForm, imagen: files[0] });
+    } else {
+      setBulletinForm({ ...bulletinForm, [name]: value });
+    }
+  };
+  
+
   return (
     <div className="dashboard-container">
-      <div className="bulletin-board">
-        <Carousel showArrows={true} autoPlay={true} infiniteLoop={true}>
-          {bulletinBoard.map(announcement => (
-            <div key={announcement.id}>
-              <img src={announcement.image} alt={`Aviso ${announcement.id}`} />
-              <p className="legend">{announcement.date}</p>
-            </div>
-          ))}
-        </Carousel>
+    <div className="bulletin-board">
+  <Carousel showArrows={true} autoPlay={true} infiniteLoop={true}>
+    {bulletinBoard.map(announcement => (
+      <div key={announcement.id}>
+        <img src={announcement.imagen_url} alt={`Aviso ${announcement.id}`} />
+        <p className="legend">{announcement.fecha_publicacion}</p>
       </div>
+    ))}
+  </Carousel>
+  {hasPermission('Guardar Banner') && (
+    <button onClick={() => setShowBulletinModal(true)} className="add-bulletin-button">Añadir Anuncio</button>
+  )}
+</div>
+
       <div className="welcome-message">
         <h1>Bienvenid@ al Centro Virtual de Documentación</h1>
         <p>Hola, {username}. Aquí tiene accesos rápidos a las funcionalidades principales.</p>
@@ -130,8 +141,8 @@ const Dashboard = () => {
         <ul>
           {notifications.map(notification => (
             <li key={notification.id}>
-              {notification.message} - 
-              <a href={`/documents/${notification.filename}`} className="notification-link">Ver archivo</a> - 
+              {notification.message} -
+              <a href={`/documents/${notification.filename}`} className="notification-link">Ver archivo</a> -
               {notification.date}
             </li>
           ))}
@@ -180,6 +191,30 @@ const Dashboard = () => {
             <div style={{ textAlign: 'center' }}>
               <a href={modalLink} className="modal-button">Ver Archivo</a>
             </div>
+          </div>
+        </div>
+      )}
+      {showBulletinModal && (
+        <div id="bulletinModal" className="modal">
+          <div className="modal-content">
+            <span className="close" onClick={() => setShowBulletinModal(false)}>&times;</span>
+            <h2>Añadir Nuevo Anuncio</h2>
+            <form onSubmit={handleBulletinSubmit}>
+              <div className="form-group">
+                <label htmlFor="titulo">Título:</label>
+                <input type="text" id="titulo" name="titulo" value={bulletinForm.titulo} onChange={handleBulletinFormChange} required />
+              </div>
+              <div className="form-group">
+  <label htmlFor="imagen">Subir Imagen:</label>
+  <input type="file" id="imagen" name="imagen" onChange={handleBulletinFormChange} required />
+</div>
+
+              <div className="form-group">
+                <label htmlFor="fecha_publicacion">Fecha de Publicación:</label>
+                <input type="datetime-local" id="fecha_publicacion" name="fecha_publicacion" value={bulletinForm.fecha_publicacion} onChange={handleBulletinFormChange} required />
+              </div>
+              <button type="submit" className="submit-button">Guardar Anuncio</button>
+            </form>
           </div>
         </div>
       )}
