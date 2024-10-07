@@ -21,7 +21,8 @@ const Dashboard = () => {
   const [modalLink, setModalLink] = useState('');
   const [bulletinBoard, setBulletinBoard] = useState([]);
   const [showBulletinModal, setShowBulletinModal] = useState(false);
-  const [bulletinForm, setBulletinForm] = useState({ titulo: '', imagen: '', fecha_publicacion: '' });
+  const [bulletinForm, setBulletinForm] = useState({ id: null, titulo: '', imagen: '', fecha_publicacion: '' });
+  const [isEditMode, setIsEditMode] = useState(false);
   const { username } = useAuth();
 
   useEffect(() => {
@@ -76,8 +77,8 @@ const Dashboard = () => {
         imagen: bulletinForm.imagen ? bulletinForm.imagen.name : null,
         fecha_publicacion: bulletinForm.fecha_publicacion
       });
-      const response = await fetch('https://backend-production-5e0d.up.railway.app/api/bulletin-board', {
-        method: 'POST',
+      const response = await fetch(`https://backend-production-5e0d.up.railway.app/api/bulletin-board${isEditMode ? `/${bulletinForm.id}` : ''}`, {
+        method: isEditMode ? 'PUT' : 'POST',
         body: formData,
       });
       console.log('Response status:', response.status);
@@ -88,12 +89,16 @@ const Dashboard = () => {
       }
   
       const data = await response.json();
-      console.log('Bulletin created:', data);
-      setBulletinBoard([...bulletinBoard, data]);
+      console.log('Bulletin saved:', data);
+      if (isEditMode) {
+        setBulletinBoard(bulletinBoard.map(item => item.id === data.id ? data : item));
+      } else {
+        setBulletinBoard([...bulletinBoard, data]);
+      }
       setShowBulletinModal(false);
     } catch (error) {
-      console.error('Error creating bulletin:', error);
-      alert(`Error al crear el anuncio: ${error.message}`);
+      console.error('Error saving bulletin:', error);
+      alert(`Error al guardar el anuncio: ${error.message}`);
     }
   };
   
@@ -106,6 +111,33 @@ const Dashboard = () => {
     }
   };
 
+  const handleEditBulletin = (announcement) => {
+    setBulletinForm({ id: announcement.id, titulo: announcement.titulo, imagen: '', fecha_publicacion: announcement.fecha_publicacion });
+    setIsEditMode(true);
+    setShowBulletinModal(true);
+  };
+
+  const handleDeleteBulletin = async (id) => {
+    try {
+      console.log('Deleting bulletin...', id);
+      const response = await fetch(`https://backend-production-5e0d.up.railway.app/api/bulletin-board/${id}`, {
+        method: 'DELETE',
+      });
+      console.log('Response status:', response.status);
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('Error response from server:', errorText);
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+  
+      console.log('Bulletin deleted:', id);
+      setBulletinBoard(bulletinBoard.filter(item => item.id !== id));
+    } catch (error) {
+      console.error('Error deleting bulletin:', error);
+      alert(`Error al eliminar el anuncio: ${error.message}`);
+    }
+  };
+
   return (
     <div className="dashboard-container">
       <div className="bulletin-board">
@@ -114,11 +146,17 @@ const Dashboard = () => {
             <div key={announcement.id}>
               <img src={announcement.imagen} alt={`Aviso ${announcement.id}`} />
               <p className="legend">{announcement.fecha_publicacion}</p>
+              {hasPermission('Guardar Banner') && (
+                <div className="bulletin-actions">
+                  <button onClick={() => handleEditBulletin(announcement)} className="edit-bulletin-button">Actualizar</button>
+                  <button onClick={() => handleDeleteBulletin(announcement.id)} className="delete-bulletin-button">Eliminar</button>
+                </div>
+              )}
             </div>
           ))}
         </Carousel>
         {hasPermission('Guardar Banner') && (
-          <button onClick={() => setShowBulletinModal(true)} className="add-bulletin-button">Añadir Anuncio</button>
+          <button onClick={() => { setShowBulletinModal(true); setIsEditMode(false); }} className="add-bulletin-button">Añadir Anuncio</button>
         )}
       </div>
       <div className="welcome-message">
@@ -211,7 +249,7 @@ const Dashboard = () => {
         <div id="bulletinModal" className="modal">
           <div className="modal-content">
             <span className="close" onClick={() => setShowBulletinModal(false)}>&times;</span>
-            <h2>Añadir Nuevo Anuncio</h2>
+            <h2>{isEditMode ? 'Actualizar Anuncio' : 'Añadir Nuevo Anuncio'}</h2>
             <form onSubmit={handleBulletinSubmit}>
               <div className="form-group">
                 <label htmlFor="titulo">Título:</label>
@@ -219,13 +257,13 @@ const Dashboard = () => {
               </div>
               <div className="form-group">
                 <label htmlFor="imagen">Subir Imagen:</label>
-                <input type="file" id="imagen" name="imagen" onChange={handleBulletinFormChange} required />
+                <input type="file" id="imagen" name="imagen" onChange={handleBulletinFormChange} required={!isEditMode} />
               </div>
               <div className="form-group">
                 <label htmlFor="fecha_publicacion">Fecha de Publicación:</label>
                 <input type="datetime-local" id="fecha_publicacion" name="fecha_publicacion" value={bulletinForm.fecha_publicacion} onChange={handleBulletinFormChange} required />
               </div>
-              <button type="submit" className="submit-button">Guardar Anuncio</button>
+              <button type="submit" className="submit-button">{isEditMode ? 'Actualizar Anuncio' : 'Guardar Anuncio'}</button>
             </form>
           </div>
         </div>
