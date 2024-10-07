@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './UserPermissions.css';
 import UserModal from './UserModal';
+import CreateUserModal from './CreateUserModal';
 import { useAuth } from '../context/AuthContext';
 import { FaPlus, FaTrashAlt, FaPencilAlt } from 'react-icons/fa';
 import { ToastContainer, toast } from 'react-toastify';
@@ -15,6 +16,7 @@ const UserPermissions = ({ users, fetchUsers, createPermission, deletePermission
     const { token } = useAuth();
     const [newPermissionName, setNewPermissionName] = useState('');
     const [showCreateModal, setShowCreateModal] = useState(false);
+    
 
     // Estados para la paginación
     const [currentPage, setCurrentPage] = useState(1);
@@ -99,7 +101,13 @@ const UserPermissions = ({ users, fetchUsers, createPermission, deletePermission
         setShowModal(false);
         fetchUsers();
     };
-
+    const openCreateModal = () => {
+        setShowCreateModal(true);
+    };
+    const closeCreateModal = () => {
+        setShowCreateModal(false);
+        fetchUsers(); // Refrescar la lista de usuarios después de crear uno nuevo
+    };
     const handleDeactivateUser = (userId) => {
         const toastId = 'my-toast-container';
         toast.warn(
@@ -225,10 +233,14 @@ const UserPermissions = ({ users, fetchUsers, createPermission, deletePermission
        
             <div className="config-header">
                 <h1>Gestión de Usuarios</h1>
+                
             </div>
             <div className="config-form">
                 <div className="header-container">
                     <h2>Gestión de Usuarios</h2>
+                    <button className="add-button" onClick={openCreateModal}>
+                        <FaPlus />
+                    </button>
                 </div>
                 <table>
                     <thead>
@@ -282,6 +294,11 @@ const UserPermissions = ({ users, fetchUsers, createPermission, deletePermission
                     roles={roles}
                     permissions={permissions}
                     closeModal={closeModal}
+                />
+            )}
+            {showCreateModal && (
+                <CreateUserModal
+                    closeModal={closeCreateModal}
                 />
             )}
         </div>
