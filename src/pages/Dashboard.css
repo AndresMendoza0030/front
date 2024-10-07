@@ -15,7 +15,45 @@ body, html {
     overflow-x: hidden;
     box-sizing: border-box;
 }
+.delete-bulletin-button {
+    margin: 0 5px;
+    padding: 5px 10px;
+    background-color: #D10A11;
+    cursor: pointer;
+    color: white;
+    border-color: #D10A11;;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+   
 
+}
+
+
+.delete-bulletin-button:hover {
+    background-color: #b4090f;
+}
+.edit-button {
+    background-color: #1B878F;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    padding: 5px 10px;
+}
+.add-button {
+    display: flex;
+    align-items: center;
+    border-radius: 5px;
+    padding: 5px 10px;
+    border: none;
+    box-shadow: rgba(0, 0, 0, 0.85) 1.95px 1.95px 2.6px;
+    cursor: pointer;
+}
+
+.edit-button:hover {
+    background-color: #125f67;
+}
 .bulletin-board {
     width: 100%;
     max-width: 1000px;

@@ -6,9 +6,11 @@ import "react-responsive-carousel/lib/styles/carousel.min.css";
 import { Carousel } from 'react-responsive-carousel';
 import { useAuth } from '../context/AuthContext';
 import { usePermissions } from '../context/PermissionsContext';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import { FaPlus, FaTrashAlt, FaPencilAlt } from 'react-icons/fa';
 
 const Dashboard = () => {
-
   const { hasPermission } = usePermissions();
   const [recentDocuments, setRecentDocuments] = useState([]);
   const [favoriteDocuments, setFavoriteDocuments] = useState([]);
@@ -23,17 +25,15 @@ const Dashboard = () => {
   const [showBulletinModal, setShowBulletinModal] = useState(false);
   const [bulletinForm, setBulletinForm] = useState({ id: null, titulo: '', imagen: '', fecha_publicacion: '' });
   const [isEditMode, setIsEditMode] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deleteBulletinId, setDeleteBulletinId] = useState(null);
   const { username } = useAuth();
 
   useEffect(() => {
-    // Fetch data from backend API
     const fetchBulletinBoard = async () => {
       try {
-        console.log('Fetching bulletin board data...');
         const response = await fetch('https://backend-production-5e0d.up.railway.app/api/bulletin-board');
-        console.log('Response status:', response.status);
         const data = await response.json();
-        console.log('Bulletin Board:', data);
         setBulletinBoard(data);
       } catch (error) {
         console.error('Error fetching bulletin board:', error);
@@ -71,34 +71,27 @@ const Dashboard = () => {
     formData.append('fecha_publicacion', bulletinForm.fecha_publicacion);
   
     try {
-      console.log('Submitting bulletin form...');
-      console.log('Form data:', {
-        titulo: bulletinForm.titulo,
-        imagen: bulletinForm.imagen ? bulletinForm.imagen.name : null,
-        fecha_publicacion: bulletinForm.fecha_publicacion
-      });
       const response = await fetch(`https://backend-production-5e0d.up.railway.app/api/bulletin-board${isEditMode ? `/${bulletinForm.id}` : ''}`, {
         method: isEditMode ? 'PUT' : 'POST',
         body: formData,
       });
-      console.log('Response status:', response.status);
       if (!response.ok) {
         const errorText = await response.text();
-        console.error('Error response from server:', errorText);
         throw new Error(`HTTP error! status: ${response.status}`);
       }
   
       const data = await response.json();
-      console.log('Bulletin saved:', data);
       if (isEditMode) {
         setBulletinBoard(bulletinBoard.map(item => item.id === data.id ? data : item));
+        toast.success('Anuncio actualizado exitosamente');
       } else {
         setBulletinBoard([...bulletinBoard, data]);
+        toast.success('Anuncio añadido exitosamente');
       }
       setShowBulletinModal(false);
     } catch (error) {
       console.error('Error saving bulletin:', error);
-      alert(`Error al guardar el anuncio: ${error.message}`);
+      toast.error(`Error al guardar el anuncio: ${error.message}`);
     }
   };
   
@@ -117,46 +110,50 @@ const Dashboard = () => {
     setShowBulletinModal(true);
   };
 
-  const handleDeleteBulletin = async (id) => {
+  const openDeleteModal = (id) => {
+    setDeleteBulletinId(id);
+    setShowDeleteModal(true);
+  };
+
+  const handleDeleteBulletin = async () => {
     try {
-      console.log('Deleting bulletin...', id);
-      const response = await fetch(`https://backend-production-5e0d.up.railway.app/api/bulletin-board/${id}`, {
+      const response = await fetch(`https://backend-production-5e0d.up.railway.app/api/bulletin-board/${deleteBulletinId}`, {
         method: 'DELETE',
       });
-      console.log('Response status:', response.status);
-      if (!response.ok) {
+      if (response.ok) {
+        setBulletinBoard(bulletinBoard.filter(item => item.id !== deleteBulletinId));
+        setShowDeleteModal(false);
+        toast.success('Anuncio eliminado exitosamente');
+      } else {
         const errorText = await response.text();
-        console.error('Error response from server:', errorText);
-        throw new Error(`HTTP error! status: ${response.status}`);
+        throw new Error(`HTTP error! status: ${response.status} - ${errorText}`);
       }
-  
-      console.log('Bulletin deleted:', id);
-      setBulletinBoard(bulletinBoard.filter(item => item.id !== id));
     } catch (error) {
       console.error('Error deleting bulletin:', error);
-      alert(`Error al eliminar el anuncio: ${error.message}`);
+      toast.error(`Error al eliminar el anuncio: ${error.message}`);
     }
   };
 
   return (
     <div className="dashboard-container">
+      <ToastContainer />
       <div className="bulletin-board">
         <Carousel showArrows={true} autoPlay={true} infiniteLoop={true}>
           {bulletinBoard.map(announcement => (
-            <div key={announcement.id}>
+            <div key={announcement.id} className="bulletin-item">
               <img src={announcement.imagen} alt={`Aviso ${announcement.id}`} />
               <p className="legend">{announcement.fecha_publicacion}</p>
               {hasPermission('Guardar Banner') && (
                 <div className="bulletin-actions">
-                  <button onClick={() => handleEditBulletin(announcement)} className="edit-bulletin-button">Actualizar</button>
-                  <button onClick={() => handleDeleteBulletin(announcement.id)} className="delete-bulletin-button">Eliminar</button>
+                  <button onClick={() => handleEditBulletin(announcement)} className="edit-button"><FaPencilAlt /></button>
+                  <button onClick={() => openDeleteModal(announcement.id)} className="delete-bulletin-button"><FaTrashAlt /></button>
                 </div>
               )}
             </div>
           ))}
         </Carousel>
         {hasPermission('Guardar Banner') && (
-          <button onClick={() => { setShowBulletinModal(true); setIsEditMode(false); }} className="add-bulletin-button">Añadir Anuncio</button>
+          <button onClick={() => { setShowBulletinModal(true); setIsEditMode(false); }} className="add-button"><FaPlus/></button>
         )}
       </div>
       <div className="welcome-message">
@@ -265,6 +262,17 @@ const Dashboard = () => {
               </div>
               <button type="submit" className="submit-button">{isEditMode ? 'Actualizar Anuncio' : 'Guardar Anuncio'}</button>
             </form>
+          </div>
+        </div>
+      )}
+
+      {showDeleteModal && (
+        <div id="deleteModal" className="modal">
+          <div className="modal-content">
+            <span className="close" onClick={() => setShowDeleteModal(false)}>&times;</span>
+            <h2>Confirmar Eliminación</h2>
+            <p>¿Estás seguro de que deseas eliminar este anuncio?</p>
+            <button onClick={handleDeleteBulletin} className="submit-button">Eliminar</button>
           </div>
         </div>
       )}
